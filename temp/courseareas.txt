@@ -1,0 +1,32 @@
+Area Area
+Centre
+Area
+Diameter
+VHF
+Channel Area Area
+Centre
+Area
+Diameter
+VHF
+Channel
+Enoshima
+35º 17.56’ N
+139º 29.51’ E
+ 1.0 nm 73 Fujisawa
+35º 15.83’ N
+139º 29.20’ E
+1.4 nm 74
+Kamakura
+35º 17.44’ N
+139º 30.79’ E
+1.15 nm 72 Sagami
+35º 15.13’ N
+139º 31.03’ E
+1.4 nm 69
+Zushi
+35º 16.21’ N
+139º 32.39’ E
+1.4 nm 71 Hayama
+35º 14.41’ N
+139º 32.85’ E
+1.4 nm 73

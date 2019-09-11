@@ -1,0 +1,6 @@
+# exclude everything
+data/*
+
+# exception to the rule
+!data/raw/tokyo2019/datamining/*
+ 
