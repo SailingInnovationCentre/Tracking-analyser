@@ -1,6 +1,4 @@
 # exclude everything
-data/*
 temp/*
 
 # exception to the rule
-!data/raw/tokyo2019/tokyo2019/regattas.json
