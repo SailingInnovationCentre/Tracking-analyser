@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Run to download desired data from SAP server and save in '.\data' folder
 
@@ -18,7 +16,7 @@ import lib.Download.download as download
 from Utilities.globalVar import *
 
 ### INPUT
-eventSelection = Enoshima
+eventSelection = Tokyo2019Test
 ###
 
 

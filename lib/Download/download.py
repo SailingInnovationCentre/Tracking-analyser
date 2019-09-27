@@ -1,5 +1,3 @@
-#!/usr/local/bin/python3
-
 """
 Library to download desired data from SAP server and save in '.\data' folder
 
@@ -24,15 +22,6 @@ import urllib, json, requests
 
 from Utilities.converter import *
 from Utilities.globalVar import *
-
-
-## Defaults
-urlbase = "https://www.sapsailing.com/sailingserver/api/v1/"
-generallandingpage = 'www'
-outdirbase = r"data/raw/"
-
-## Global
-suffix = '.json'
 
 
 class download(object):
@@ -72,17 +61,19 @@ class download(object):
 
         if not os.path.exists(filename):
             try:
-                r = requests.get(url).json()
-                # r = json.loads(response.read())
+                r = requests.get(url, timeout = 60).json()
+                os.makedirs(os.path.dirname(filename), exist_ok=True)
+                print(filename)
+
             except ValueError:
                 ## TODO: delete the right events from regatta list
                 print("Oops! ", loc , " did not contain the right data for the races, it is deleted from the regatta list")
                 return ValueError
-
-            os.makedirs(os.path.dirname(filename), exist_ok=True)
-            with open(filename, 'w') as outfile:
+            with open(filename, 'w+') as outfile:
                 print('Created new file:', filename)
                 json.dump(r, outfile)
+
+
 
     def saveRegattas(self):
         loc = "regattas"

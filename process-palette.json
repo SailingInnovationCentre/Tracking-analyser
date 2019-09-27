@@ -99,7 +99,7 @@
     {
       "namespace": "process-palette",
       "action": "stream-example",
-      "command": "ping localhost",
+      "command": "py -3 -m pip install --upgrade setuptools",
       "arguments": [],
       "cwd": null,
       "inputDialogs": [],
@@ -139,7 +139,7 @@
     {
       "namespace": "process-palette",
       "action": "python",
-      "command": "python3 {filePath}",
+      "command": "py -3 {filePath}",
       "arguments": [],
       "cwd": "{fileProjectPath}",
       "inputDialogs": [],
@@ -182,7 +182,7 @@
     {
       "namespace": "process-palette",
       "action": "install package",
-      "command": "python3 -V",
+      "command": "py -3 -m pip install sqlalchemy\r\n",
       "arguments": [],
       "cwd": "{fileProjectPath}",
       "inputDialogs": [],

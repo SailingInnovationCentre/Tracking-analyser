@@ -33,7 +33,7 @@ def webAddressToFilename(webAddress):
     return f
 
 def regattaLoc(regattaName):
-    return "regattas/" + regattaName + "/"
+    return "/regattas/" + regattaName + "/"
 
 def raceLoc(regattaName, raceName):
     return regattaLoc(regattaName) + "races/" +  raceName + "/"

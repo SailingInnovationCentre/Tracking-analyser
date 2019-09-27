@@ -1,6 +1,6 @@
 raceFeatures = ['entries', 'firstlegbearing', 'markpassings', \
          'competitors/positions' , 'competitors/live', 'competitors/legs', \
-         'marks/positions', 'course', 'times', 'targettime', 'wind']
+         'marks/positions', 'course', 'times', 'targettime', 'wind', 'maneuvers']
 
 BeginTime = '2012-01-01T10:12:03Z'
 EndTime = '2019-12-31T10:12:03Z'
@@ -17,5 +17,15 @@ Enoshima = [{'name' :  'tokyo2019', 'AllRegattas': True, 'regattaNameContaining'
  'hwcs2020-round1', 'AllRegattas' : True, 'regattaNameContaining': ''}, {'name' : 'www', 'AllRegattas' : \
  False, 'regattaNameContaining': 'Enoshima'}]
 
-Tokyo2019Test = [{'name' : 'tokyo2019', 'AllRegattas': True, 'regattaNameContaining': 'Laser Radial', 'raceNameContaining': ''}]
-Tokyo2019 = [{'name' : 'tokyo2019', 'AllRegattas': True, 'regattaNameContaining': '', 'raceNameContaining': ''}]
+Tokyo2019TestEvent = [{'name' :  'tokyo2019', 'AllRegattas': True, 'regattaNameContaining': '', 'raceNameContaining': ''}]
+
+Tokyo2019Test = [{'name' : 'tokyo2019', 'AllRegattas': False, 'regattaNameContaining': 'Laser Radial', 'raceNameContaining': 'R2'}]
+Tokyo2019laserR = [{'name' : 'tokyo2019', 'AllRegattas': False, 'regattaNameContaining': 'Laser Radial', 'raceNameContaining': ''}]
+
+## Defaults
+urlbase = "https://www.sapsailing.com/sailingserver/api/v1/"
+generallandingpage = 'www'
+outdirbase = r"data/raw/"
+
+## Global
+suffix = '.json'

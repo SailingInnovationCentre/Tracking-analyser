@@ -1,4 +1,3 @@
-#!/usr/local/bin/python3
 
 """
 Library to calculate stats of windsummaries
@@ -15,6 +14,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import gmplot
 import plotly.express as px
+import chart_studio.plotly as py
 import itertools
 
 
@@ -140,8 +140,10 @@ if __name__ == "__main__":
     windfreq = wind.makeFrequenciesWind()
     print(windfreq.head())
     ################
-    # fig = visualise.plotWindFreq(windfreq)
-    # fig.show()
+    fig = visualise.plotWindFreq(windfreq)
+    url=py.plot(fig, filename='your_filename')
+    print(url.resource)
+    fig.show()
 
     # px.set_mapbox_access_token('pk.eyJ1IjoibmVyaW5ldSIsImEiOiJjazA4Nnp6cGMwM3N4M2JteWw3c3ZpdjB1In0.wv-VE3NZ6K0hMobfSqkG4A')
     # fig = px.scatter_mapbox(wind.wind, lat="lat-deg", lon="lng-deg", color="speed-m/s",
