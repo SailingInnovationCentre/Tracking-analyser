@@ -19,7 +19,7 @@ Enoshima = [{'name' :  'tokyo2019', 'AllRegattas': True, 'regattaNameContaining'
 
 Tokyo2019TestEvent = [{'name' :  'tokyo2019', 'AllRegattas': True, 'regattaNameContaining': '', 'raceNameContaining': ''}]
 
-Tokyo2019Test = [{'name' : 'tokyo2019', 'AllRegattas': False, 'regattaNameContaining': 'Laser Radial', 'raceNameContaining': 'R2'}]
+Tokyo2019Test = [{'name' : 'tokyo2019', 'AllRegattas': False, 'regattaNameContaining': 'Laser', 'raceNameContaining': 'R2'}]
 Tokyo2019laserR = [{'name' : 'tokyo2019', 'AllRegattas': False, 'regattaNameContaining': 'Laser Radial', 'raceNameContaining': ''}]
 
 ## Defaults
@@ -29,3 +29,26 @@ outdirbase = r"data/raw/"
 
 ## Global
 suffix = '.json'
+
+AllFilenames = [
+             'windsummary',
+             'course',
+             'entries',
+             'firstlegbearing',
+             'markpassings',
+             # # 'targettime',
+             # # 'times',
+             # # 'wind',
+             'legs',
+             # # 'live',
+             'positions',
+             # # 'marks_positions',
+             'maneuvers',
+             'AvgSpeed_Per_Competitor-LegType',
+             # # 'AvgSpeed_Per_Competitor',
+             # # 'DistanceTraveled_Per_Competitor-LegType',
+             # # 'DistanceTraveled_Per_Competitor',
+             # # 'Maneuvers_Per_Competitor',
+             # # 'races',
+             # # 'regattas',
+             ]

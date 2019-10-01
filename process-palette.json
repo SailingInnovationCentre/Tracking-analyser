@@ -139,7 +139,7 @@
     {
       "namespace": "process-palette",
       "action": "python",
-      "command": "py -3 {filePath}",
+      "command": "py -3 X:\\TU_Delft\\2_Master\\3_Stage\\2_Code\\SAPDataAnalysis\\src\\2_preprocess.py",
       "arguments": [],
       "cwd": "{fileProjectPath}",
       "inputDialogs": [],
@@ -182,7 +182,7 @@
     {
       "namespace": "process-palette",
       "action": "install package",
-      "command": "py -3 -m pip install sqlalchemy\r\n",
+      "command": "py -3 -m pip install pymssql",
       "arguments": [],
       "cwd": "{fileProjectPath}",
       "inputDialogs": [],
