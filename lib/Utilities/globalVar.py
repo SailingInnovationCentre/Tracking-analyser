@@ -19,7 +19,7 @@ Enoshima = [{'name' :  'tokyo2019', 'AllRegattas': True, 'regattaNameContaining'
 
 Tokyo2019TestEvent = [{'name' :  'tokyo2019', 'AllRegattas': True, 'regattaNameContaining': '', 'raceNameContaining': ''}]
 
-Tokyo2019Test = [{'name' : 'tokyo2019', 'AllRegattas': False, 'regattaNameContaining': 'Laser', 'raceNameContaining': 'R2'}]
+Tokyo2019Test = [{'name' : 'tokyo2019', 'AllRegattas': False, 'regattaNameContaining': 'Laser', 'raceNameContaining': ''}]
 Tokyo2019laserR = [{'name' : 'tokyo2019', 'AllRegattas': False, 'regattaNameContaining': 'Laser Radial', 'raceNameContaining': ''}]
 
 ## Defaults
@@ -36,19 +36,16 @@ AllFilenames = [
              'entries',
              'firstlegbearing',
              'markpassings',
-             # # 'targettime',
-             # # 'times',
-             # # 'wind',
+             'targettime',
+             'times',
+             # 'wind--fromtime=2012-01-01T10__12__03Z&totime=2019-12-31T10__12__03Z',
              'legs',
-             # # 'live',
-             'positions',
-             # # 'marks_positions',
+             # 'live',
+             # 'positions',
              'maneuvers',
              'AvgSpeed_Per_Competitor-LegType',
-             # # 'AvgSpeed_Per_Competitor',
-             # # 'DistanceTraveled_Per_Competitor-LegType',
-             # # 'DistanceTraveled_Per_Competitor',
-             # # 'Maneuvers_Per_Competitor',
-             # # 'races',
-             # # 'regattas',
+             'AvgSpeed_Per_Competitor',
+             'DistanceTraveled_Per_Competitor-LegType',
+             'DistanceTraveled_Per_Competitor',
+             'Maneuvers_Per_Competitor',
              ]
