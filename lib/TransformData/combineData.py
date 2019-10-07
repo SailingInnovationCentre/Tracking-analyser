@@ -13,27 +13,21 @@ import matplotlib.pyplot as plt
 import Download.download as download
 from Utilities.converter import *
 from Utilities.globalVar import *
+import lib.SQLlib.sql as sql
+
 
 class combineData():
     def __init__(self, eventSelection = Tokyo2019Test):
         self.eventSelection = eventSelection
-        self.dataframes = {}
+        self.featureSaved =[]
 
     def combineFiles(self, filenames = AllFilenames):
-        self.dataframes = dict([(key,[]) for key in filenames])
-        if 'positions' in filenames:
-            self.dataframes['competitor_positions'] = []
-        if 'entries' in filenames:
-            self.dataframes['entries_race'] = []
-        self.dataframes['regattas'] = []
-        self.dataframes['races'] = []
-
         for serv in self.eventSelection:
             d = download.download(server = serv['name'], regattasContaining = serv['regattaNameContaining'],\
              racesContaining = serv['raceNameContaining'])
 
             regattas = d.getRegattas()
-            self.dataframes['regattas'] += regattas
+            self.saveJsonAtSQLServer(regattas, 'regattas')
 
             for regatta in regattas:
                 races = d.getRaces(regatta['name'])
@@ -46,16 +40,17 @@ class combineData():
                         filename = os.path.splitext(fname)[0]
                         if filepath.endswith(".json") and (filename in filenames):
                             with open(filepath) as json_file:
-                                print('file extracted: ', filepath, 'in category:')
+                                print('file extracted: ', filepath)
                                 data = json.load(json_file)
                             dic_data = {'regatta': regatta['name'], 'data': data}
-                            self.dataframes[filename].append(dic_data)
+                            self.saveJsonAtSQLServer(dic_data, filename)
+
+                            # self.dataframes[filename].append(dic_data)
             #
             #
                 for race in races:
                     race['regatta'] = regatta['name']
                     directory_race = r'X:\TU_Delft\2_Master\3_Stage\2_Code\SAPDataAnalysis\\'+ outdirbase +serv['name'] + raceLoc(regatta['name'], race['name']) ##TODO niet zo beun
-                    racedata = {}
                     for subdir, dirs, files in os.walk(directory_race):
                         for file in files:
                             filepath = subdir + os.sep + file
@@ -65,29 +60,28 @@ class combineData():
                                     print('file extracted: ', filepath)
                                     data = json.load(json_file)
                                 dic_data = {'regatta': regatta['name'], 'race' : race['name'], 'data': data}
+                                print(filename)
                                 if filename == 'entries':
-                                    self.dataframes['entries_race'].append(dic_data)
+                                    self.saveJsonAtSQLServer(dic_data, 'entries_race')
                                 elif filename == 'positions':
                                     if 'competitor' in filepath:
-                                        self.dataframes['competitor_positions'].append(dic_data)
+                                        self.saveJsonAtSQLServer(dic_data, 'competitor_positions')
                                     elif 'marks' in filepath:
-                                        self.dataframes[filename].append(dic_data)
+                                        self.saveJsonAtSQLServer(dic_data, 'marks_positions')
+                                elif filename == 'wind--fromtime=2012-01-01T10__12__03Z&totime=2019-12-31T10__12__03Z':
+                                        self.saveJsonAtSQLServer(dic_data, 'wind')
                                 else:
-                                    self.dataframes[filename].append(dic_data)
-                self.dataframes['races'] += races
+                                    self.saveJsonAtSQLServer(dic_data, filename)
+                self.saveJsonAtSQLServer(races, 'races')
 
+    def saveJsonAtSQLServer(self, data, feature, **race):
+        df = self.transformJsonToPD(data, feature)
+        s = sql.sql()
+        keep = (feature in self.featureSaved)
+        s.saveDataFrame(df, filename = feature, keepExisting = keep )
+        self.featureSaved.append(feature)
 
-        # print(dataframes['entries'])
-        for feature, data in self.dataframes.items():
-            print('Combining files for', feature)
-            self.dataframes[feature] = self.transformJsonToPD(data, feature = feature)
-
-        ## don't print dataframes when it containts everything!!
-        # print(dataframes)
-        return self.dataframes           ## dictionairy with keys are filenames and pandaframe as value containing everything nicely structured
-        ### letop entries bevat de algemen en per race specifieke dataframes
-
-    def transformJsonToPD(self, data, feature):
+    def transformJsonToPD(self, data, feature, **race):
         pd.set_option('display.max_columns', 500)
         if feature == 'regattas':
             regattas = pd.DataFrame(data)[['name', 'boatclass', 'courseAreaId']]
@@ -102,7 +96,7 @@ class combineData():
             return races
 
         elif feature == 'entries':
-            df = pd.DataFrame(data)
+            df = pd.DataFrame({k: [v] for k, v in data.items()})
             df = self.expandRecord(df, 'data', columnsToKeep ='competitors')
             df = self.expandListToRows(df, 'competitors')
             df = self.expandRecord(df, 'competitors',  columnsToKeep ='name')
@@ -112,7 +106,6 @@ class combineData():
 
         elif feature == 'windsummary':
             df = pd.DataFrame(data)
-            df = self.expandListToRows(pd.DataFrame(data), 'data')
             df = self.expandRecord(df, 'data')
             df['regatta_raceShort_id'] = df.regatta + ', ' + df.racecolumn
 
@@ -120,7 +113,8 @@ class combineData():
             return df
 
         elif feature == 'entries_race':
-            df = self.expandRecord(pd.DataFrame(data), 'data').drop('name', axis = 1)
+            df = pd.DataFrame({k: [v] for k, v in data.items()})
+            df = self.expandRecord(df, 'data').drop('name', axis = 1)
             df = self.expandListToRows(df, 'competitors')
             df = self.expandRecord(df, 'competitors', prefix = 'competitor_',
                                     columnsToKeep = ['id', 'name', 'nationality',
@@ -134,7 +128,8 @@ class combineData():
             return df
 
         elif feature == 'legs':
-            df = pd.DataFrame(data).drop('regatta', axis = 1)
+            df = pd.DataFrame({k: [v] for k, v in data.items()})
+            df = df.drop('regatta', axis = 1)
             df = self.expandRecord(df, 'data').drop('name', axis = 1)
             df = self.expandListToRows(df, 'legs')
             df = self.expandRecord(df, 'legs')
@@ -154,7 +149,7 @@ class combineData():
             return df
 
         elif feature == "markpassings":
-            df = pd.DataFrame(data)
+            df = pd.DataFrame({k: [v] for k, v in data.items()})
             df = self.expandRecord(df, 'data').drop('bywaypoint', axis = 1)
             df = self.expandListToRows(df, 'bycompetitor')
             df = self.expandRecord(df, 'bycompetitor', columnsToKeep = ['markpassings', 'competitor.name'])
@@ -175,7 +170,7 @@ class combineData():
             return df
 
         elif feature == "course":
-            df = pd.DataFrame(data)
+            df = pd.DataFrame({k: [v] for k, v in data.items()})
             df = self.expandRecord(df, 'data').drop('name', axis = 1)
             df = self.expandListToRows(df, 'waypoints')
             df = self.expandRecord(df, 'waypoints', columnsToKeep =['name'])
@@ -188,14 +183,14 @@ class combineData():
             return df
 
         elif feature == 'firstlegbearing':
-            df = pd.DataFrame(data)
+            df = pd.DataFrame({k: [v] for k, v in data.items()})
             df = self.expandRecord(df, 'data')
             df['regatta_race_id'] = df.regatta + ', ' + df.race
             df = df.drop(['regatta','race'], axis = 1)
             return df
 
         elif feature == 'competitor_positions':
-            df = pd.DataFrame(data).drop('regatta', axis = 1)
+            df = pd.DataFrame({k: [v] for k, v in data.items()}).drop('regatta', axis = 1)
             df = self.expandRecord(df, 'data').drop('name', axis = 1)
             df = self.expandListToRows(df, 'competitors')
             df = self.expandRecord(df, 'competitors', columnsToKeep = ['name', 'track'])
@@ -209,7 +204,7 @@ class combineData():
             return df
 
         elif feature == 'maneuvers':
-            df = pd.DataFrame(data)
+            df = pd.DataFrame({k: [v] for k, v in data.items()})
             df = self.expandRecord(df, 'data')
             df = self.expandListToRows(df, 'bycompetitor')
             df = self.expandRecord(df, 'bycompetitor')
@@ -225,7 +220,7 @@ class combineData():
             return df
 
         elif feature in ['AvgSpeed_Per_Competitor-LegType', 'DistanceTraveled_Per_Competitor-LegType']:
-            df = pd.DataFrame(data).drop('regatta', axis = 1)
+            df = pd.DataFrame({k: [v] for k, v in data.items()}).drop('regatta', axis = 1)
             df = self.expandRecord(df, 'data', columnsToDiscard =['state',
                                     'calculationDuration-s'])
             df = self.expandListToRows(df, 'results')
@@ -243,7 +238,7 @@ class combineData():
             return df
         elif feature in ['AvgSpeed_Per_Competitor', 'DistanceTraveled_Per_Competitor',
                         'Maneuvers_Per_Competitor']:
-            df = pd.DataFrame(data).drop('regatta', axis = 1)
+            df = pd.DataFrame({k: [v] for k, v in data.items()}).drop('regatta', axis = 1)
             df = self.expandRecord(df, 'data')
             df = self.expandListToRows(df, 'results')
             df = self.expandRecord(df, 'results')
@@ -256,7 +251,7 @@ class combineData():
             return df
 
         elif feature == 'targettime':
-            df = pd.DataFrame(data)
+            df = pd.DataFrame({k: [v] for k, v in data.items()})
             df = self.expandRecord(df, 'data')
             df = self.expandListToRows(df, 'legs')
             df = self.expandRecord(df, 'legs')
@@ -272,14 +267,14 @@ class combineData():
             return df
 
         elif feature == 'times': ## begin en eindtijd race
-            df = pd.DataFrame(data).drop(columns = 'regatta')
+            df = pd.DataFrame({k: [v] for k, v in data.items()}).drop(columns = 'regatta')
             df = self.expandRecord(df, 'data').drop(columns = 'name')
             df['regatta_race_id'] = df[['regatta', 'race']].apply(self.mergeColumns, axis=1)
             df = df.drop(columns = ['regatta', 'race', 'markPassings', 'legs'])
             return df
 
-        elif feature == 'wind--fromtime=2012-01-01T10__12__03Z&totime=2019-12-31T10__12__03Z': #TODO iets mooiere naam :'|
-            df = pd.DataFrame(data).drop(columns = 'regatta')
+        elif feature == 'wind':
+            df = pd.DataFrame({k: [v] for k, v in data.items()}).drop(columns = 'regatta')
             df = self.expandRecord(df, 'data').drop(columns = 'name')
             df = df.drop(columns = 'availableWindSources') ## Weet niet waar dit nuttig voor zou zijn
             df = self.expandListToRows(df, 'windSources')
@@ -297,8 +292,8 @@ class combineData():
             df = df.drop(columns = ['race', 'regatta'])
             return df
 
-        elif feature == 'positions':
-            df = pd.DataFrame(data).drop(columns = 'regatta')
+        elif feature == 'marks_positions':
+            df = pd.DataFrame({k: [v] for k, v in data.items()}).drop(columns = 'regatta')
             df = self.expandRecord(df, 'data').drop(columns = 'name')
             df = self.expandListToRows(df, 'marks')
             df = self.expandRecord(df, 'marks')
@@ -310,6 +305,7 @@ class combineData():
             df = df.drop(columns = ['regatta', 'race'])
             return df
         else:
+            print('WARNING: empty dataframe')
             return pd.DataFrame([])
 
     def mergeColumns(self, x):

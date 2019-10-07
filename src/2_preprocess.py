@@ -41,10 +41,11 @@ filenames = ['regattas',
              ]
 ###
 
-c = comb.combineData(eventSelection = Tokyo2019Test)
-dataframes = c.combineFiles(filenames = AllFilenames)
-s = sql.sql()
-s.saveDataframes(dataframes)
+c = comb.combineData(eventSelection = Tokyo2019laserR)
+c.combineFiles(filenames = AllFilenames)
+
+# s = sql.sql()
+# s.saveDataframes(dataframes)
 
 
 print('everything done')

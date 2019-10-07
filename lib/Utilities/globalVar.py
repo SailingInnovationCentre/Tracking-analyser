@@ -20,7 +20,7 @@ Enoshima = [{'name' :  'tokyo2019', 'AllRegattas': True, 'regattaNameContaining'
 Tokyo2019TestEvent = [{'name' :  'tokyo2019', 'AllRegattas': True, 'regattaNameContaining': '', 'raceNameContaining': ''}]
 
 Tokyo2019Test = [{'name' : 'tokyo2019', 'AllRegattas': False, 'regattaNameContaining': 'Laser', 'raceNameContaining': ''}]
-Tokyo2019laserR = [{'name' : 'tokyo2019', 'AllRegattas': False, 'regattaNameContaining': 'Laser Radial', 'raceNameContaining': ''}]
+Tokyo2019laserR = [{'name' : 'tokyo2019', 'AllRegattas': False, 'regattaNameContaining': 'Laser Radial', 'raceNameContaining': 'R8'}]
 
 ## Defaults
 urlbase = "https://www.sapsailing.com/sailingserver/api/v1/"
@@ -38,10 +38,9 @@ AllFilenames = [
              'markpassings',
              'targettime',
              'times',
-             # 'wind--fromtime=2012-01-01T10__12__03Z&totime=2019-12-31T10__12__03Z',
+             'wind--fromtime=2012-01-01T10__12__03Z&totime=2019-12-31T10__12__03Z',
              'legs',
-             # 'live',
-             # 'positions',
+             'positions',
              'maneuvers',
              'AvgSpeed_Per_Competitor-LegType',
              'AvgSpeed_Per_Competitor',

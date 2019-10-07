@@ -24,8 +24,6 @@ for serv in eventSelection:
     download.download(server = serv['name'], \
      regattasContaining = serv['regattaNameContaining']).run(NormalData = True)
 
-     # TODO save all normal data, but takes long... tonight
-
 
 
 print('everything done')
