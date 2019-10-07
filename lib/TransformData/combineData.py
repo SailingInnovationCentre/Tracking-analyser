@@ -20,6 +20,8 @@ class combineData():
     def __init__(self, eventSelection = Tokyo2019Test):
         self.eventSelection = eventSelection
         self.featureSaved =[]
+        self.s = sql.sql()
+
 
     def combineFiles(self, filenames = AllFilenames):
         for serv in self.eventSelection:
@@ -60,7 +62,6 @@ class combineData():
                                     print('file extracted: ', filepath)
                                     data = json.load(json_file)
                                 dic_data = {'regatta': regatta['name'], 'race' : race['name'], 'data': data}
-                                print(filename)
                                 if filename == 'entries':
                                     self.saveJsonAtSQLServer(dic_data, 'entries_race')
                                 elif filename == 'positions':
@@ -76,9 +77,8 @@ class combineData():
 
     def saveJsonAtSQLServer(self, data, feature, **race):
         df = self.transformJsonToPD(data, feature)
-        s = sql.sql()
         keep = (feature in self.featureSaved)
-        s.saveDataFrame(df, filename = feature, keepExisting = keep )
+        self.s.saveDataFrame(df, filename = feature, keepExisting = keep )
         self.featureSaved.append(feature)
 
     def transformJsonToPD(self, data, feature, **race):
@@ -90,9 +90,9 @@ class combineData():
 
         elif feature == 'races':
             races = pd.DataFrame(data)
-            races['regatta_race_id'] = races.regatta + ', ' + races.name
-            races['regatta_raceShort_id'] = races.regatta + ', ' + races.name.apply(lambda x: x.split(' ')[0])
-            races = races.drop(['name', 'id'], axis = 1)
+            races['regatta_race_id'] = races.regatta + '_' + races.name
+            races['regatta_raceShort_id'] = races.regatta + '_' + races.name.apply(lambda x: x.split(' ')[0])
+            # races = races.drop(['name', 'id'], axis = 1)
             return races
 
         elif feature == 'entries':
@@ -100,16 +100,16 @@ class combineData():
             df = self.expandRecord(df, 'data', columnsToKeep ='competitors')
             df = self.expandListToRows(df, 'competitors')
             df = self.expandRecord(df, 'competitors',  columnsToKeep ='name')
-            df['regatta_competitor_id'] = df.regatta + ', ' + df.name
-            df = df.drop('regatta', axis = 1)
+            df['regatta_competitor_id'] = df.regatta + '_' + df.name
+            # df = df.drop('regatta', axis = 1)
             return df
 
         elif feature == 'windsummary':
             df = pd.DataFrame(data)
             df = self.expandRecord(df, 'data')
-            df['regatta_raceShort_id'] = df.regatta + ', ' + df.racecolumn
+            df['regatta_raceShort_id'] = df.regatta + '_' + df.racecolumn
 
-            df = df.drop(['regatta', 'racecolumn'], axis = 1)
+            # df = df.drop(['regatta', 'racecolumn'], axis = 1)
             return df
 
         elif feature == 'entries_race':
@@ -121,10 +121,10 @@ class combineData():
                                                     'boat.sailId',
                                                     'boat.boatClass.displayName'])
 
-            df['regatta_race_id'] = df.regatta + ', ' + df.race
-            df['regatta_race_competitor_id'] = df.regatta_race_id + ', ' + df.competitor_name
+            df['regatta_race_id'] = df.regatta + '_' + df.race
+            df['regatta_race_competitor_id'] = df.regatta_race_id + '_' + df.competitor_name
             df['regatta_race_competitorid_id'] =  df[['regatta', 'race', 'competitor_id']].apply(self.mergeColumns, axis=1)
-            df = df.drop(['regatta', 'race'], axis = 1)
+            # df = df.drop(['regatta', 'race'], axis = 1)
             return df
 
         elif feature == 'legs':
@@ -142,10 +142,10 @@ class combineData():
             df = self.expandRecord(df, 'competitors', prefix = 'competitor_',
                                     ).drop('competitor_color', axis = 1)
 
-            df['regatta_race_competitor_id'] = df.regatta + ', ' + df.race + ', ' + df.competitor_name
-            df['regatta_race_competitor_to_id'] = df.regatta_race_competitor_id + ', ' + df.to
-            df['regatta_race_competitor_legnr_id'] = df.regatta_race_competitor_id + ', ' + df.leg_nr.apply(str)
-            df = df.drop(['regatta', 'race'], axis = 1)
+            df['regatta_race_competitor_id'] = df.regatta + '_' + df.race + '_' + df.competitor_name
+            df['regatta_race_competitor_to_id'] = df.regatta_race_competitor_id + '_' + df.to
+            df['regatta_race_competitor_legnr_id'] = df.regatta_race_competitor_id + '_' + df.leg_nr.apply(str)
+            # df = df.drop(['regatta', 'race'], axis = 1)
             return df
 
         elif feature == "markpassings":
@@ -162,11 +162,11 @@ class combineData():
             df['during_leg_ms'] = df.apply(lambda row: range(int(row['begin_leg_ms']),int(row['end_leg_ms']), 10000), axis = 1)
             df = self.expandListToRows(df, 'during_leg_ms')
 
-            df['regatta_race_competitor_legnr_id'] = df.regatta + ', ' + df.race + ', ' + df['competitor.name']+ \
-                                                ', ' + df.zeroBasedWaypointIndex.apply(str)
-            df['regatta_race_competitor_time_id'] = df.regatta + ', ' + df.race + ', ' + df['competitor.name']+ \
-                                                ', ' + df.during_leg_ms.apply(str)
-            df = df.drop(['regatta', 'race', 'index'], axis = 1)
+            df['regatta_race_competitor_legnr_id'] = df.regatta + '_' + df.race + '_' + df['competitor.name']+ \
+                                                '_' + df.zeroBasedWaypointIndex.apply(str)
+            df['regatta_race_competitor_time_id'] = df.regatta + '_' + df.race + '_' + df['competitor.name']+ \
+                                                '_' + df.during_leg_ms.apply(str)
+            # df = df.drop(['regatta', 'race', 'index'], axis = 1)
             return df
 
         elif feature == "course":
@@ -179,14 +179,14 @@ class combineData():
             df['mark_nr_from_finish'] = df.groupby(['regatta','race']).cumcount()
             df = df.iloc[::-1]
 
-            df['regatta_race_to_id'] = df.regatta + ', ' + df.race + ', ' + df.name
+            df['regatta_race_to_id'] = df.regatta + '_' + df.race + '_' + df.name
             return df
 
         elif feature == 'firstlegbearing':
             df = pd.DataFrame({k: [v] for k, v in data.items()})
             df = self.expandRecord(df, 'data')
-            df['regatta_race_id'] = df.regatta + ', ' + df.race
-            df = df.drop(['regatta','race'], axis = 1)
+            df['regatta_race_id'] = df.regatta + '_' + df.race
+            # df = df.drop(['regatta','race'], axis = 1)
             return df
 
         elif feature == 'competitor_positions':
@@ -199,8 +199,8 @@ class combineData():
             df = df.rename(columns={"timepoint-ms": "timepoint_ms"})
 
             df['regatta_race_competitor_time_id'] =  df[['regatta', 'race', 'name']].apply(self.mergeColumns, axis=1) + \
-                                          ', ' + df['timepoint_ms'].apply(str)
-            df = df.drop(['regatta','race', 'name'], axis = 1)
+                                          '_' + df['timepoint_ms'].apply(str)
+            # df = df.drop(['regatta','race', 'name'], axis = 1)
             return df
 
         elif feature == 'maneuvers':
@@ -230,12 +230,13 @@ class combineData():
             df = self.expandListToRows(df, 'leg_type')
             description = df.loc[0, 'description']
 
-            df['regatta_competitor_id'] = df[['regatta', 'competitor']].apply(self.mergeColumns, axis=1)
 
-            df = df.pivot(index = 'regatta_competitor_id', columns = 'leg_type', values = 'value')
+            df = df.pivot_table(index = ['regatta', 'competitor'], columns = 'leg_type', values = 'value')
             df.columns = [' '.join([description, col]) for col in df.columns]
             df = df.reset_index()
+            df['regatta_competitor_id'] = df[['regatta', 'competitor']].apply(self.mergeColumns, axis=1)
             return df
+
         elif feature in ['AvgSpeed_Per_Competitor', 'DistanceTraveled_Per_Competitor',
                         'Maneuvers_Per_Competitor']:
             df = pd.DataFrame({k: [v] for k, v in data.items()}).drop('regatta', axis = 1)
@@ -247,7 +248,7 @@ class combineData():
             df = df.rename(columns = {'groupKey' : 'competitor', 'value' : description })
 
             df['regatta_competitor_id'] = df[['regatta', 'competitor']].apply(self.mergeColumns, axis=1)
-            df = df[['regatta_competitor_id', description]]
+            df = df[['regatta_competitor_id', 'regatta', 'competitor', description]]
             return df
 
         elif feature == 'targettime':
@@ -261,16 +262,15 @@ class combineData():
             df = df.iloc[::-1]
 
             df['regatta_race_legnr_id'] = df[['regatta', 'race']].apply(self.mergeColumns, axis=1) + \
-                                            ', ' + df.leg_nr.apply(str)
-
-            df = df.drop(columns = ['regatta', 'race'])
+                                            '_' + df.leg_nr.apply(str)
+            # df = df.drop(columns = ['regatta', 'race'])
             return df
 
         elif feature == 'times': ## begin en eindtijd race
             df = pd.DataFrame({k: [v] for k, v in data.items()}).drop(columns = 'regatta')
             df = self.expandRecord(df, 'data').drop(columns = 'name')
             df['regatta_race_id'] = df[['regatta', 'race']].apply(self.mergeColumns, axis=1)
-            df = df.drop(columns = ['regatta', 'race', 'markPassings', 'legs'])
+            # df = df.drop(columns = ['regatta', 'race', 'markPassings', 'legs'])
             return df
 
         elif feature == 'wind':
@@ -285,11 +285,11 @@ class combineData():
             df['timepoint-ms'] = df['timepoint-ms'].apply(lambda x: round(x, -3))
 
             df['regatta_race_id'] = df[['regatta', 'race']].apply(self.mergeColumns, axis=1)
-            df['regatta_race_time_id'] = df.regatta_race_id  + ', ' + df['timepoint-ms'].apply(str)
+            df['regatta_race_time_id'] = df.regatta_race_id  + '_' + df['timepoint-ms'].apply(str)
             m = df['regatta_race_time_id'].duplicated(keep='first')
             # print(sum(m), len(df))
             df = df[~m]                      ### delete duplicate id's
-            df = df.drop(columns = ['race', 'regatta'])
+            # df = df.drop(columns = ['race', 'regatta'])
             return df
 
         elif feature == 'marks_positions':
@@ -301,8 +301,8 @@ class combineData():
             df = self.expandRecord(df, 'track')
 
             df['regatta_race_mark_id'] = df[['regatta', 'race', 'name']].apply(self.mergeColumns, axis=1)
-            df['regatta_race_mark_time_id'] = df.regatta_race_mark_id + ', ' + df['timepoint-ms'].apply(str)
-            df = df.drop(columns = ['regatta', 'race'])
+            df['regatta_race_mark_time_id'] = df.regatta_race_mark_id + '_' + df['timepoint-ms'].apply(str)
+            # df = df.drop(columns = ['regatta', 'race'])
             return df
         else:
             print('WARNING: empty dataframe')

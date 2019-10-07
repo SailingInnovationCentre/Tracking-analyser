@@ -1,5 +1,6 @@
 from sqlalchemy import *
 from sqlalchemy.sql.expression import *
+from sqlalchemy.exc import IntegrityError, InternalError
 import pymysql
 pymysql.install_as_MySQLdb()
 import urllib
@@ -7,9 +8,10 @@ import pyodbc
 import pandas as pd
 
 class sql(object):
-    # def __init__(self, Database = 'SAPTrackingData'):
+    def __init__(self):
         # quoted = urllib.parse.quote_plus('Driver={SQL Server};Server=LAPTOP-NERINE\MSSMLBIZ;Database=SAPTrackingData;Trusted_Connection=yes;')
         # self.engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(quoted))
+        self.engine = create_engine('mysql://root:Dataisleuk!2019@localhost:3306/sap_track')
 
     def saveDataframes(self, dfs):
         # quoted = urllib.parse.quote_plus('Driver={SQL Server};Server=LAPTOP-NERINE\MSSMLBIZ;Database=SAPTrackingData;Trusted_Connection=yes;')
@@ -23,26 +25,18 @@ class sql(object):
             df.to_sql(feat, schema='dbo', con = engine, index = False, if_exists = 'replace')
 
     def saveDataFrame(self, df, filename, keepExisting = True):
-        # quoted = urllib.parse.quote_plus('Driver={SQL Server};Server=LAPTOP-NERINE\MSSMLBIZ;Database=SAPTrackingData;Trusted_Connection=yes;')
-        # engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(quoted))
-        engine = create_engine('mysql://root:Dataisleuk!2019@localhost:3306/sap_track')
         print('Saving', filename, 'at SQL server')
-        print(len(df))
-        # id_cols = [col for col in list(df.columns) if ('id' in col)]
-        # dtypes = dict([(key, VARCHAR(100)) for key in id_cols])
         if keepExisting:
             if_exists = 'append'
         else:
             if_exists = 'replace'
-        print(if_exists)
-        # df.to_sql(filename, schema='dbo', con = engine, index = False, if_exists = if_exists)
-        df.to_sql(filename.lower(), schema='sap_track', con = engine, index = False, if_exists = 'replace')
 
-        # with engine.connect() as con:
-        #     con.execute('ALTER TABLE `'+ filename + '` ADD PRIMARY KEY (`ID_column`);')
-
-
-
+        try:
+            df.to_sql(filename.lower(), schema='sap_track', con = self.engine, index = False, if_exists = 'append')
+        except IntegrityError:
+            print('WARNING: Table', filename, 'already exists')
+        except InternalError:
+            print('WARNING: could not replace table', filename)
 
 
 if __name__ == "__main__":
@@ -79,20 +73,3 @@ if __name__ == "__main__":
 
     metadata.create_all(engine)
     print('run sql finished')
-
-#     from sqlalchemy import *
-#     quoted = urllib.parse.quote_plus('Driver={SQL Server};Server=LAPTOP-NERINE\MSSMLBIZ;Database=SAPTrackingData;Trusted_Connection=yes;')
-#     engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(quoted))
-#     metadata = MetaData()
-#
-#     metadata.drop_all(engine)
-#     print('everything done')
-
-    ### Connection to mysql
-
-    # from pandas.io import sql
-    # import pymysql
-    # pymysql.install_as_MySQLdb()
-    # import sqlalchemy
-    # engine = sqlalchemy.create_engine('mysql://root:Dataisleuk!2019@localhost:3306/demo')
-    # df.to_sql(name='competitors', con=engine, if_exists = 'replace')
