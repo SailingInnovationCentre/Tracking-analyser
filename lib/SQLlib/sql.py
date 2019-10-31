@@ -9,9 +9,17 @@ import pandas as pd
 
 class sql(object):
     def __init__(self):
-        # quoted = urllib.parse.quote_plus('Driver={SQL Server};Server=LAPTOP-NERINE\MSSMLBIZ;Database=SAPTrackingData;Trusted_Connection=yes;')
-        # self.engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(quoted))
-        self.engine = create_engine('mysql://root:Dataisleuk!2019@localhost:3306/sap_track')
+
+        server = 'nerinedb.database.windows.net'
+        database = 'nerinedatabase'
+        username = 'nerineadmin'
+        password = 'ZeilenIsLeuk!'
+        driver= '{ODBC Driver 17 for SQL Server}'
+        connection_str = 'DRIVER='+driver+';SERVER='+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+ password
+        quoted = urllib.parse.quote_plus(connection_str)
+        self.engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(quoted))
+
+        # self.engine = create_engine('mysql://root:Dataisleuk!2019@localhost:3306/sap_track')
 
     def saveDataframes(self, dfs):
         # quoted = urllib.parse.quote_plus('Driver={SQL Server};Server=LAPTOP-NERINE\MSSMLBIZ;Database=SAPTrackingData;Trusted_Connection=yes;')
@@ -32,11 +40,12 @@ class sql(object):
             if_exists = 'replace'
 
         try:
-            df.to_sql(filename.lower(), schema='sap_track', con = self.engine, index = False, if_exists = 'append')
-        except IntegrityError:
-            print('WARNING: Table', filename, 'already exists')
-        except InternalError:
-            print('WARNING: could not replace table', filename)
+            df.to_sql('temp_' + filename.lower(), con = self.engine, index = False, if_exists = if_exists)
+            print('Succeeded;', filename, 'is added tot the SQL Server')
+        except IntegrityError as e:
+            print('WARNING: Failed to upload to sql: '+ str(e))
+        except InternalError as e:
+            print('WARNING: could not replace table', filename, 'because', e)
 
 
 if __name__ == "__main__":

@@ -16,7 +16,8 @@ import lib.Download.download as download
 from Utilities.globalVar import *
 
 ### INPUT
-eventSelection = Tokyo2019Test
+eventSelection = [{'name' : 'hwcs2020-round1', 'AllRegattas': False, 'regattaNameContaining': 'Finn', 'raceNameContaining': 'R6'}]
+
 ###
 
 

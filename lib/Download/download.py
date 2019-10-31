@@ -28,7 +28,7 @@ class download(object):
     def __init__(self, server = generallandingpage, outdir = outdirbase, \
      regattasContaining = '', racesContaining = ''):
         self.urlbase  = urlbase.replace(generallandingpage, server)
-        self.outdir = outdir + server + '/'
+        self.outdir = parentdir + '/' + outdir + server + '/'
         self.regattasContaining = regattasContaining
         self.racesContaining = racesContaining
 
