@@ -21,15 +21,6 @@ import uuid
 class combineData():
     def __init__(self, server = Tokyo2019Test[0]):
         self.server = server
-        self.featureSaved =[]
-        self.s = sql.sql()
-
-    def saveJsonAtSQLServer(self, data, feature, **race):
-        df = self.transformJsonToPD(data, feature)
-        keep = (feature in self.featureSaved)
-        self.s.saveDataFrame(df, filename = feature, keepExisting = keep )
-        self.featureSaved.append(feature)
-        return df
 
 
     def transformJsonToPD(self, data, feature, **race):
@@ -154,13 +145,16 @@ class combineData():
             df = pd.DataFrame({k: [v] for k, v in data.items()})
             df = self.expandRecord(df, 'data').drop('name', axis = 1)
             df = self.expandListToRows(df, 'waypoints')
-            df = self.expandRecord(df, 'waypoints', columnsToKeep =['name'])
+            df = self.expandRecord(df, 'waypoints')
             df['mark_nr'] = df.groupby(['regatta','race']).cumcount()
             df = df.iloc[::-1]
             df['mark_nr_from_finish'] = df.groupby(['regatta','race']).cumcount()
             df = df.iloc[::-1]
 
-            df['regatta_race_to_id'] = df.regatta + '_' + df.race + '_' + df.name
+            df['controlPoint.id'] = df['controlPoint.id'].apply(self.uuidToBin)
+            df['controlPoint.left.id'] = df['controlPoint.left.id'].apply(self.uuidToBin)
+            df['controlPoint.right.id'] = df['controlPoint.right.id'].apply(self.uuidToBin)
+
             return df
 
         elif feature == 'firstlegbearing':
@@ -246,26 +240,46 @@ class combineData():
             df['regatta_race_id'] = df[['regatta', 'race']].apply(self.mergeColumns, axis=1)
             return df
 
+        elif feature == 'windsources':
+            df = pd.DataFrame({k: [v] for k, v in data.items()})
+            df = self.expandListToRows(df, 'availableWindSources')
+            df = self.expandRecord(df, 'availableWindSources').drop(columns = 'windSources')
+            df = df.rename(columns = {'name':'race'})
+            return df
+
         elif feature == 'wind':
+            df = pd.DataFrame({k: [v] for k, v in data.items()})
+            df = self.expandListToRows(df, 'windSources')
+
+            df['windSource'] = df.windSources.apply(lambda x: list(x.keys())[0])
+            df['data'] = df.windSources.apply(lambda x: x[list(x.keys())[0]])
+            df = df.drop(columns = ['windSources', 'availableWindSources'])
+            df = self.expandListToRows(df, 'data')
+            df = self.expandRecord(df, 'data')
+            df = df.rename(columns = {'name':'race'})
+            return df
+
+        elif feature == 'marks':
+
             df = pd.DataFrame({k: [v] for k, v in data.items()}).drop(columns = 'regatta')
             df = self.expandRecord(df, 'data').drop(columns = 'name')
-            df = df.drop(columns = 'availableWindSources') ## Weet niet waar dit nuttig voor zou zijn
-            df = self.expandListToRows(df, 'windSources')
-            df = self.expandRecord(df, 'windSources')
-            df = self.expandListToRows(df, 'COMBINED')
-            df = self.expandRecord(df, 'COMBINED').drop(columns = ['speed-m/s', 'dampenedSpeed-m/s'])
+            df = self.expandListToRows(df, 'marks')
+            df = self.expandRecord(df, 'marks', columnsToDiscard = 'track')
+            df.id = df.id.apply(self.uuidToBin)
+            df = df.dropna(subset=['id'])
+
             return df
 
         elif feature == 'marks_positions':
             df = pd.DataFrame({k: [v] for k, v in data.items()}).drop(columns = 'regatta')
             df = self.expandRecord(df, 'data').drop(columns = 'name')
             df = self.expandListToRows(df, 'marks')
-            df = self.expandRecord(df, 'marks')
+            df = self.expandRecord(df, 'marks', columnsToDiscard = 'name')
+            df.id = df.id.apply(self.uuidToBin)
+            df = df.dropna(subset=['id'])
             df = self.expandListToRows(df, 'track')
             df = self.expandRecord(df, 'track')
 
-            df['regatta_race_mark_id'] = df[['regatta', 'race', 'name']].apply(self.mergeColumns, axis=1)
-            df['regatta_race_mark_time_id'] = df.regatta_race_mark_id + '_' + df['timepoint-ms'].apply(str)
             return df
 
         else:
@@ -299,6 +313,16 @@ class combineData():
         df[colNames] = pd.DataFrame(df[lst_col].values.tolist(), index= df.index)
         df = df.drop(lst_col, axis = 1)
         return df
+
+    def uuidToBin(self, x):
+        try:
+            if isinstance(x, str):
+                x = x.replace(' (1)', '')
+                x = uuid.UUID(x).bytes
+        except ValueError as e:
+            print(x, e)
+            x = np.nan
+        return x
 
 
 
