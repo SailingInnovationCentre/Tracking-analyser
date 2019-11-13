@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 import Download.download as download
 from Utilities.converter import *
 from Utilities.globalVar import *
-import lib.SQLlib.sql as sql
 import re
 import uuid
 
