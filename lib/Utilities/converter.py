@@ -3,7 +3,17 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
+import urllib, json, requests
+from sqlalchemy import event
+from sqlalchemy.types import TypeDecorator, CHAR
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import *
+from sqlalchemy.exc import IntegrityError, InternalError
+from sqlalchemy.types import BINARY, VARCHAR
+
 from Utilities.globalVar import *
+
+
 
 def filenameToWebAddress(filename):
     wa = filename.replace('---', '\\' )
@@ -22,7 +32,6 @@ def regattaLoc(regattaName):
 
 def raceLoc(regattaName, raceName):
     return regattaLoc(regattaName) + "races/" +  raceName + "/"
-
 
 def idToText(id): #TODO move to utilities
     return "0x{}".format(id.hex().upper())
@@ -163,12 +172,20 @@ def getArea(race, areas):
     area_id = areas.loc[areas[['distance']].idxmin(), 'id'].values[0]
     return area_id
 
+
+def getData(url, regName = '', raceName = '', table = ''):
+    data = requests.get(url, timeout = 100)
+    if data.status_code == 404:
+        print('No {} data available for {} {}'.format(table, regName, raceName))
+        pass
+    return data.json()
+
 ## Actions
-def toSql(df, table, engine, regName, raceName):
+def toSql(df, table, engine, regName = '', raceName= ''):
     try:
         print('Trying to upload', end = '\r')
         df.to_sql(table, con = engine, index = False, if_exists = 'append')
         print('Succesfully uploaded {} for regatta: \t{}, race: \t{}'.format(table, regName, raceName))
     except IntegrityError as e:
-        print('IntegrityError: Failed to upload to sql :for regatta: \t{}, race: \t{}'.format(regName, raceName))
+        print('IntegrityError: Failed to upload {} to sql :for regatta: \t{}, race: \t{}'.format(table, regName, raceName))
         return e
