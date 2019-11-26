@@ -35,6 +35,8 @@ This is the file that should be modified when new variables are desired.
 ## Working on the Report
 In the folder **reports** the *Power BI* files can be found. In the files the data from the sql server is imported. Per table there is a small query to change some formats and make combined id's because *Power BI* cannot deal with multi column foreign keys. 
 
+For the `posititions` table an indexed view is made in the database. If there is new data available that is needed in the report a the view should be renewed.
+
 
 ## Authors
 
