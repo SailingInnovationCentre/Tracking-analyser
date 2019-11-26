@@ -4,6 +4,9 @@ parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
 import urllib, json, requests
+import pandas as pd
+import numpy as np
+from math import *
 from sqlalchemy import event
 from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID
@@ -12,6 +15,7 @@ from sqlalchemy.exc import IntegrityError, InternalError
 from sqlalchemy.types import BINARY, VARCHAR
 
 from Utilities.globalVar import *
+
 
 
 
@@ -120,7 +124,7 @@ def dataUrl(regName, raceName, dataName):
     elif dataName  == 'positions_marks':
         path = 'marks/positions'
     else:
-        path == 'dataName'
+        path = dataName
     url = 'https://www.sapsailing.com/sailingserver/api/v1/regattas/{}/races/{}/{}'.format(regName, raceName, path)
     return url
 
@@ -157,12 +161,13 @@ def coordinatesToEquiv(track_df, centre = True):
     y = np.array( track_df['lat-deg']- phi_0)
     return np.array([x, y])
 
-def getArea(race, areas):
+def getArea(race, areas, engine):
+    race_id = idToText(race.race_id)
     sql = """SELECT TOP (1) *
-      FROM positions
-      WHERE regatta = '""" + race['regatta'] + \
-      """'and race = '"""+ race['race'] + \
-      """'and leg_nr = 1"""
+      FROM positions2
+      WHERE leg_nr = 1
+      and race_id = {}
+      """.format(race_id)
     track = pd.read_sql_query(sql, con = engine)
     if track.empty:
         print('Track of race {} was empty'.format(race.race))
@@ -173,15 +178,30 @@ def getArea(race, areas):
     return area_id
 
 
+
+
 def getData(url, regName = '', raceName = '', table = ''):
     data = requests.get(url, timeout = 100)
     if data.status_code == 404:
-        print('No {} data available for {} {}'.format(table, regName, raceName))
-        pass
+        # print('No {} data available for {} {}'.format(table, regName, raceName))
+        return None
     return data.json()
 
+
 ## Actions
-def toSql(df, table, engine, regName = '', raceName= ''):
+def toSql(df, table, engine, regName = '', raceName= '', condition = ''):
+    print('check if there are already entries in db', end = '\r')
+    if condition != '':
+        condition = 'where {}'.format(condition)
+        sql = """
+        SELECT TOP (1) * from {}
+        {}
+        """.format(table, condition)
+        check = pd.read_sql(sql, engine)
+        if not check.empty:
+            print('Found entries for {} in db :for regatta: \t{}, race: \t{}'.format(table, regName, raceName))
+            return None
+
     try:
         print('Trying to upload', end = '\r')
         df.to_sql(table, con = engine, index = False, if_exists = 'append')
