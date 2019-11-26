@@ -19,31 +19,24 @@ eventSelection = [{'name' :  'www', 'regattaNameContaining': 'WCS 2019 Genoa - 4
          {'name' : 'www', 'regattaNameContaining': 'WCS 2019 Genoa - Nacra', 'raceNameContaining' : ''}
          ]
 ```
-`'name'` represents the name of the server. After some time all the races tracked by SAP will be available using `'www'`, but some events also have their own server on which the data is available sooner. The name of the server can be found when viewing the desired race online at the *SAP Sailing Analytics* web site. For example for the [test event in Tokyo](https://tokyo2019.sapsailing.com/gwt/Home.html#/regatta/races/:eventId=6389fb9d-12e1-47ef-9831-ddab8cf9598f&regattaId=Tokyo%202019%20-%2049er%20FX) the first
+`'name'` represents the name of the server. After some time all the races tracked by SAP will be available using `'www'`, but some events also have their own server on which the data is available sooner. The name of the server can be found when viewing the desired race online at the *SAP Sailing Analytics* web site. For example the [test event in Tokyo](https://tokyo2019.sapsailing.com/gwt/Home.html#/regatta/races/:eventId=6389fb9d-12e1-47ef-9831-ddab8cf9598f&regattaId=Tokyo%202019%20-%2049er%20FX) has it's own url starting with `tokyo2019`. 
 
+By running the whole notebook all the tables will be filled with data regarding the selected races.
 
-
-
-
-
-Add additional notes about how to deploy this on a live system
 
 ## Add New Variables
+For some visuals extra variables are needed. These are calculated before uploading the data to power bi to save computation time. This can be done with the jupyter notebook 'src/2_Create_New_Variables'. In the same way as for adding new races, it is possible to select races for which updates are desired.
+
+In every section a part of the variables can be updated. Some depend on another, so it is not always possible to skip to the variable you specifically want to update.
+
+This is the file that should be modified when new variables are desired.
 
 
 ## Working on the Report
-
+In the folder **reports** the *Power BI* files can be found. In the files the data from the sql server is imported. Per table there is a small query to change some formats and make combined id's because *Power BI* cannot deal with multi column foreign keys. 
 
 
 ## Authors
 
 * **Nerine Usman** - *Initial work* - [NerineUsman](https://github.com/NerineUsman)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
