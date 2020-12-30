@@ -1,6 +1,3 @@
-# exclude everything
-temp/*
-
 # generic Python ignores, including VS Code specifics. 
 .DS_Store
 .huskyrc.json
