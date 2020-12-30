@@ -46,4 +46,3 @@ pydevd*.log
 nodeLanguageServer/**
 nodeLanguageServer.*/**
 
-.gitignore
