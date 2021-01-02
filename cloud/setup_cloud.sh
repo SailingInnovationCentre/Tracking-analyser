@@ -34,3 +34,4 @@ az sql server firewall-rule create --r $rgname --server $dbservername --name $wh
 echo Creating database: $dbname
 # Not sure if S1 is strong enough for the purposes we foresee. 
 az sql db create -n $dbname -g $rgname -s $dbservername --service-objective S1 
+
