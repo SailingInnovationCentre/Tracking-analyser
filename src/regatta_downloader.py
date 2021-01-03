@@ -3,6 +3,7 @@ import requests
 import json
 
 from global_config import GlobalConfig
+from azure_blob_uploader import AzureBlobUploader
 
 class RegattaDownloader : 
 
@@ -23,8 +24,12 @@ class RegattaDownloader :
         with open(destination, 'w') as f :
             f.write(r.text)
         print ("Downloading Regattas done. ")
+        return r.text
 
 if __name__ == "__main__" : 
     config = GlobalConfig()
     downloader = RegattaDownloader(config)
-    downloader.download_to(os.path.join(config.data_dir, "regattas.json"))
+    data = downloader.download_to(os.path.join(config.data_dir, "regattas.json"))
+
+    uploader = AzureBlobUploader('secrets.json')
+    uploader.upload('testcontainer', 'regattas.json', data)
