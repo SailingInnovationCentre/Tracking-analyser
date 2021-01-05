@@ -1,0 +1,6 @@
+docker login acrpowertracks.azurecr.io
+docker build . -t acrpowertracks.azurecr.io/powertracks:latest
+docker run -it --env-file env.list acrpowertracks.azurecr.io/powertracks:latest
+docker push acrpowertracks.azurecr.io/powertracks:latest
+
+az container create -g rg-powertracks -n aci-powertracks2 --image acrpowertracks.azurecr.io/powertracks:latest --restart-policy never --secure-environment-variables BLOB_CONNECTION_STRING="Invullen" --cpu 1 --memory 1
