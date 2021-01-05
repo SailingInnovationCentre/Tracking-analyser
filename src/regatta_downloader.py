@@ -31,5 +31,5 @@ if __name__ == "__main__" :
     downloader = RegattaDownloader(config)
     data = downloader.download_to(os.path.join(config.data_dir, "regattas.json"))
 
-    uploader = AzureBlobUploader('secrets.json')
+    uploader = AzureBlobUploader()
     uploader.upload('testcontainer', 'regattas.json', data)
