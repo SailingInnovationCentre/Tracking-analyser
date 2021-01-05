@@ -1,3 +1,5 @@
+secrets.json
+
 # generic Python ignores, including VS Code specifics. 
 .DS_Store
 .huskyrc.json
