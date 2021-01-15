@@ -1,3 +1,7 @@
-import sapsailing.json_downloader as j
+from config import Config
+from sapsailing.sap_downloader import SapDownloader
 
-j.test()
+if __name__ == "__main__" : 
+    config = Config()
+    downloader = SapDownloader(config)
+    downloader.start()
