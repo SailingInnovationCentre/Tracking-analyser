@@ -7,10 +7,10 @@ class RegattaUploader:
 
     def upload(self, json_path, conn, cursor) : 
         with open(json_path) as json_file_object : 
-            regattas_json = json.load(json_file_object)
+            json_object = json.load(json_file_object)
     
             list_to_upload = []
-            for record in regattas_json : 
+            for record in json_object : 
                 for att in record : 
                     print(record[att])
                 print()

@@ -6,8 +6,8 @@ DROP TABLE IF EXISTS powertracks.regattas;
 CREATE TABLE powertracks.regattas
 (
     regatta_id varchar(50) PRIMARY KEY,
-    boatclass varchar(50) NULL,
-    course_area_id nvarchar(40) NULL
+    boatclass varchar(50),
+    course_area_id varchar(40)
 );
 
 -- Add indexes for boatclass and course area id? 
@@ -19,22 +19,22 @@ CREATE TABLE powertracks.regattas
 
 CREATE TABLE powertracks.races
 (
-    race_id binary(16) NOT NULL,
-    regatta_id varchar(50) NOT NULL,
-    race varchar(50) NOT NULL,
-    raceShort varchar(50) NOT NULL,
+    race_id varchar(40) PRIMARY KEY,      -- GUID
+    regatta_id varchar(50),               -- just the name
+    race_name varchar(50),                -- e.g. R4 (49ER)
+    race_short_name varchar(50),          -- e.g. R4
     fleet varchar(20),
-    maxWindSpd_kts decimal(10,2) NULL,
-    minWindSpd_kts decimal(10,2) NULL,
-    avgWindDir_deg decimal(10,2) NULL,
-    firstlegbearing_deg decimal(10,2) NULL,
-    course_area_id int NULL,
-    nr_competitors int NULL,
-    startOfRace_ms bigint,
-    endOfRace_ms bigint,
-    start_wind_dir decimal(5,2),
-    stl_bearing decimal(5,2),
-    stl_bearing_diff_wind decimal(5,2),
+    max_wind_speed_kts decimal(10,2), 
+    min_wind_speed_kts decimal(10,2), 
+    avg_wind_dir_deg decimal(10,2), 
+    first_leg_bearing_deg decimal(10,2),
+    course_area_id int,
+    nr_competitors int,
+    start_of_race_ms bigint,
+    end_of_race_ms bigint,
+    start_wind_dir decimal(10,2),
+    stl_bearing decimal(10,2),
+    stl_bearing_diff_wind decimal(10,2),
     stl_fav_side varchar(10),
     sail_style_id int
 );
@@ -47,23 +47,23 @@ CREATE INDEX idx_reg ON powertracks.races (regatta);
 
 CREATE TABLE competitors
 (
-    regatta varchar(50) NOT NULL,
-    comp_id binary(16) NOT NULL,
-    comp_name varchar(100) NULL,
-    nationality varchar(3) NULL,
-    sailId varchar(10) NULL,
-    [Speed (kts) (Average)] decimal(10,2) NULL,
-    [Speed (kts) (Average) UPWIND] decimal(10,2) NULL,
-    [Speed (kts) (Average) DOWNWIND] decimal(10,2) NULL,
-    [Speed (kts) (Average) REACHING] decimal(10,2) NULL,
-    [Distance Traveled (Sum)] decimal(10,2) NULL,
-    [Distance Traveled (Sum) UPWIND] decimal(10,2) NULL,
-    [Distance Traveled (Sum) DOWNWIND] decimal(10,2) NULL,
-    [Distance Traveled (Sum) REACHING] decimal(10,2) NULL,
-    [Speed (kts) (Average) null] decimal(10,2) NULL,
-    [Distance Traveled (Sum) null] decimal(10,2) NULL,
-    overall_rank int NULL,
-    [Number of Maneuvers (Sum)] decimal(10,2) NULL
+    regatta varchar(50),
+    comp_id binary(16),
+    comp_name varchar(100),
+    nationality varchar(3),
+    sailId varchar(10),
+    [Speed (kts) (Average)] decimal(10,2),
+    [Speed (kts) (Average) UPWIND] decimal(10,2),
+    [Speed (kts) (Average) DOWNWIND] decimal(10,2),
+    [Speed (kts) (Average) REACHING] decimal(10,2),
+    [Distance Traveled (Sum)] decimal(10,2),
+    [Distance Traveled (Sum) UPWIND] decimal(10,2),
+    [Distance Traveled (Sum) DOWNWIND] decimal(10,2),
+    [Distance Traveled (Sum) REACHING] decimal(10,2),
+    [Speed (kts) (Average)] decimal(10,2),
+    [Distance Traveled (Sum)] decimal(10,2),
+    overall_rank int,
+    [Number of Maneuvers (Sum)] decimal(10,2)
 )
 
 CREATE UNIQUE CLUSTERED INDEX idx ON competitors (regatta, comp_id);
@@ -73,9 +73,9 @@ CREATE INDEX idx_comp ON competitors (comp_id);
 
 
 CREATE TABLE windsources (
-    race_id binary(16) NOT NULL,
+    race_id binary(16),
     typeName varchar(100),
-    id varchar(50) NOT NULL,
+    id varchar(50),
     rc bit
 );
 
@@ -85,18 +85,18 @@ CREATE UNIQUE CLUSTERED INDEX idx ON windsources (race_id, typeName, id);
 
 
 CREATE TABLE wind (
-    race_id binary(16) NOT NULL,
-    windSource varchar(100) NOT NULL,
-    windSource_id varchar(50) NULL,
-    [trueBearing-deg] decimal(5,2) NULL,
-    [speed-kts] decimal(5,2) NULL,
-    [speed-m/s] decimal(5,2) NULL,
-    [timepoint-ms] bigint NULL,
-    [dampenedTrueBearing-deg] decimal(5,2) NULL,
-    [dampenedSpeed-kts] decimal(5,2) NULL,
-    [dampenedSpeed-m/s] decimal(5,2) NULL,
-    [lat-deg] decimal(10,7) NULL,
-    [lng-deg] decimal(10,7) NULL
+    race_id binary(16),
+    windSource varchar(100),
+    windSource_id varchar(50),
+    [trueBearing-deg] decimal(5,2),
+    [speed-kts] decimal(5,2),
+    [speed-m/s] decimal(5,2),
+    [timepoint-ms] bigint,
+    [dampenedTrueBearing-deg] decimal(5,2),
+    [dampenedSpeed-kts] decimal(5,2),
+    [dampenedSpeed-m/s] decimal(5,2),
+    [lat-deg] decimal(10,7),
+    [lng-deg] decimal(10,7)
 );
 
 CREATE UNIQUE CLUSTERED INDEX idx ON wind (race_id, windSource, windSource_id, [timepoint-ms]);
@@ -108,14 +108,14 @@ CREATE INDEX idx_race On wind (race_id);
 CREATE TABLE legs
 (
     race_id binary(16),
-    leg_nr int NOT NULL,
-    fromWaypointId binary(16) NULL,
-    toWaypointId binary(16) NULL,
-    [to] varchar(20) NULL,
-    [from] varchar(20) NULL,
-    upOrDownwindLeg bit NULL,
-    leg_nr_from_finish int NULL,
-    distance decimal(20,2) NULL,
+    leg_nr int,
+    fromWaypointId binary(16),
+    toWaypointId binary(16),
+    [to] varchar(20),
+    [from] varchar(20),
+    upOrDownwindLeg bit,
+    leg_nr_from_finish int,
+    distance decimal(20,2),
     correlation_tacks decimal(5,4),
     correlation_side decimal(5,4),
     correlation_avgSOG decimal(5,4),
@@ -139,12 +139,12 @@ CREATE INDEX idx_race ON legs (race_id);
 CREATE TABLE race_comp
 (
     race_id binary(16),
-    comp_id binary(16) NOT NULL,
-    regatta varchar(50) NOT NULL,
+    comp_id binary(16),
+    regatta varchar(50),
     rank int,
     pos_startline_abs_x decimal(3, 2),
     pos_startline_abs_y decimal(7, 5),
-    pos_startline_rel decimal(4, 2) NULL
+    pos_startline_rel decimal(4, 2)
 );
 
 CREATE UNIQUE CLUSTERED INDEX idx ON race_comp (race_id, comp_id);
@@ -156,24 +156,24 @@ CREATE INDEX idx_comp ON race_comp (comp_id);
 CREATE TABLE comp_leg
 (
     race_id binary(16),
-    leg_nr int NOT NULL,
-    comp_id binary(16) NOT NULL,
-    [competitor_distanceTraveled-m] decimal(10,2) NULL,
-    [competitor_averageSOG-kts] decimal(5,2) NULL,
-    competitor_tacks int NULL,
-    competitor_jibes int NULL,
-    competitor_penaltyCircles int NULL,
-    competitor_rank int NULL,
-    [competitor_gapToLeader-s] decimal(10,2) NULL,
-    [competitor_gapToLeader-m] decimal(10,2) NULL,
-    competitor_started bit NULL,
-    competitor_finished bit NULL,
-    avg_side decimal(5,2) NULL,
-    most_left decimal(5,2) NULL,
-    most_right decimal(5,2) NULL,
-    rel_rank decimal(3,2) NULL,
-    rel_averageSOG decimal (5,3) NULL, 
-    rel_distanceTraveled decimal(5,3) NULL
+    leg_nr int,
+    comp_id binary(16),
+    [competitor_distanceTraveled-m] decimal(10,2),
+    [competitor_averageSOG-kts] decimal(5,2),
+    competitor_tacks int,
+    competitor_jibes int,
+    competitor_penaltyCircles int,
+    competitor_rank int,
+    [competitor_gapToLeader-s] decimal(10,2),
+    [competitor_gapToLeader-m] decimal(10,2),
+    competitor_started bit,
+    competitor_finished bit,
+    avg_side decimal(5,2),
+    most_left decimal(5,2),
+    most_right decimal(5,2),
+    rel_rank decimal(3,2),
+    rel_averageSOG decimal (5,3), 
+    rel_distanceTraveled decimal(5,3)
 )
 
 CREATE UNIQUE CLUSTERED INDEX idx ON comp_leg (race_id, leg_nr, comp_id);
@@ -185,16 +185,16 @@ CREATE INDEX idx_leg ON comp_leg (race_id, leg_nr);
 
 CREATE TABLE positions
 (
-    race_id binary(16) NOT NULL,
-    leg_nr int NULL,
-    comp_id binary(16) NOT NULL,
-    timepoint_ms bigint NOT NULL,
-    [lat-deg] decimal(20,10) NULL,
-    [lng-deg] decimal(20,10) NULL,
-    [speed-kts] decimal(10,2) NULL,
-    [truebearing-deg] decimal(10,2) NULL,
-    calculated_windSpd decimal(10,2) NULL,
-    calculated_windDir decimal(10,2) NULL,
+    race_id binary(16),
+    leg_nr int,
+    comp_id binary(16),
+    timepoint_ms bigint,
+    [lat-deg] decimal(20,10),
+    [lng-deg] decimal(20,10),
+    [speed-kts] decimal(10,2),
+    [truebearing-deg] decimal(10,2),
+    calculated_windSpd decimal(10,2),
+    calculated_windDir decimal(10,2),
     [rel_spd-kts] decimal(5,3)
 )
 
@@ -207,23 +207,23 @@ CREATE INDEX idx_comp ON positions (race_id, comp_id)
 
 
 CREATE TABLE courses (
-    race_id binary(16) NOT NULL,
-    name varchar(50) NULL,
-    passingInstruction varchar(50) NULL,
-    [controlPoint.@class] varchar(50) NULL,
-    [controlPoint.name] varchar(50) NULL,
-    [controlPoint.id] binary(16) NULL,
-    [controlPoint.left.@class]varchar(50) NULL,
-    [controlPoint.left.name] varchar(50) NULL,
-    [controlPoint.left.id] binary(16) NULL,
-    [controlPoint.left.type] varchar(50) NULL,
-    [controlPoint.right.@class]varchar(50) NULL,
-    [controlPoint.right.name] varchar(50) NULL,
-    [controlPoint.right.id] binary(16) NULL,
-    [controlPoint.right.type] varchar(50) NULL,
-    [controlPoint.type] varchar(50) NULL,
-    mark_nr int NOT NULL,
-    mark_nr_from_finish int NULL
+    race_id binary(16),
+    name varchar(50),
+    passingInstruction varchar(50),
+    [controlPoint.@class] varchar(50),
+    [controlPoint.name] varchar(50),
+    [controlPoint.id] binary(16),
+    [controlPoint.left.@class]varchar(50),
+    [controlPoint.left.name] varchar(50),
+    [controlPoint.left.id] binary(16),
+    [controlPoint.left.type] varchar(50),
+    [controlPoint.right.@class]varchar(50),
+    [controlPoint.right.name] varchar(50),
+    [controlPoint.right.id] binary(16),
+    [controlPoint.right.type] varchar(50),
+    [controlPoint.type] varchar(50),
+    mark_nr int,
+    mark_nr_from_finish int
 );
 
 CREATE UNIQUE CLUSTERED INDEX idx ON courses (race_id, mark_nr);
@@ -234,9 +234,9 @@ CREATE INDEX idx_race ON courses (race_id);
 
 
 CREATE TABLE marks (
-    race_id binary(16) NOT NULL,
-    id binary(16) NOT NULL,
-    name varchar(50) NULL
+    race_id binary(16),
+    id binary(16),
+    name varchar(50)
 );
 
 CREATE UNIQUE CLUSTERED INDEX idx ON marks (race_id, id);
@@ -244,10 +244,10 @@ CREATE INDEX idx_race ON marks (race_id);
 
 CREATE TABLE marks_positions
 (
-    race_id binary(16) NOT NULL,
-    id binary(16) NOT NULL,
-    [lat-deg] decimal(10,7) NULL,
-    [lng-deg] decimal(10,7) NULL,
+    race_id binary(16),
+    id binary(16),
+    [lat-deg] decimal(10,7),
+    [lng-deg] decimal(10,7),
     [timepoint-ms] bigint,
 );
 
@@ -279,8 +279,8 @@ VALUES (1, 'Enoshima', 35.1756, 139.2951),
 
 CREATE TABLE sailing_style
 (
-    id int NOT NULL,
-    style varchar(50) NOT NULL,
+    id int,
+    style varchar(50),
     tacks_lower decimal(3,2),
     tacks_upper decimal(3,2),
     side_lower decimal(3,2),
@@ -306,13 +306,13 @@ VALUES (1, 'Oscillating', -1, .1, 0, .2, -.1, 0, .5, 1),
 
 CREATE TABLE temp_markpassings
 (
-    regatta varchar(50) NOT NULL,
-    race varchar(50) NOT NULL,
+    regatta varchar(50),
+    race varchar(50),
     race_id binary(16),
-    comp_id binary(16) NOT NULL,
-    leg_nr int NOT NULL,
-    begin_leg_ms bigint NULL,
-    end_leg_ms bigint NULL
+    comp_id binary(16),
+    leg_nr int,
+    begin_leg_ms bigint,
+    end_leg_ms bigint
 );
 
 CREATE UNIQUE INDEX idx ON temp_markpassings (regatta, race, leg_nr, comp_id);
