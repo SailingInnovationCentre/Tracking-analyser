@@ -45,26 +45,24 @@ CREATE INDEX idx_reg ON powertracks.races (regatta);
 
 
 
-CREATE TABLE competitors
+CREATE TABLE powertracks.competitors
 (
-    regatta varchar(50),
-    comp_id binary(16),
+    comp_id varchar(40) PRIMARY KEY,       -- GUID
     comp_name varchar(100),
     nationality varchar(3),
-    sailId varchar(10),
-    [Speed (kts) (Average)] decimal(10,2),
-    [Speed (kts) (Average) UPWIND] decimal(10,2),
-    [Speed (kts) (Average) DOWNWIND] decimal(10,2),
-    [Speed (kts) (Average) REACHING] decimal(10,2),
-    [Distance Traveled (Sum)] decimal(10,2),
-    [Distance Traveled (Sum) UPWIND] decimal(10,2),
-    [Distance Traveled (Sum) DOWNWIND] decimal(10,2),
-    [Distance Traveled (Sum) REACHING] decimal(10,2),
-    [Speed (kts) (Average)] decimal(10,2),
-    [Distance Traveled (Sum)] decimal(10,2),
+    regatta_id varchar(50),
+    sail_id varchar(10),
+    speed_kts_avg decimal(10,2),
+    speed_kts_upwind_avg decimal(10,2),
+    speed_kts_downwind_avg decimal(10,2),
+    speed_kts_reaching_avg decimal(10,2),
+    distance_sum decimal(10,2),
+    distance_sum_upwind decimal(10,2),
+    distance_sum_downwind decimal(10,2),
+    distance_sum_reaching decimal(10,2),
     overall_rank int,
-    [Number of Maneuvers (Sum)] decimal(10,2)
-)
+    sum_nr_maneuvers decimal(10,2)
+);
 
 CREATE UNIQUE CLUSTERED INDEX idx ON competitors (regatta, comp_id);
 CREATE INDEX idx_comp ON competitors (comp_id);
