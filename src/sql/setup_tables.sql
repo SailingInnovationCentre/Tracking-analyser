@@ -69,43 +69,25 @@ CREATE INDEX idx_comp ON competitors (comp_id);
 
 
 
-
-CREATE TABLE windsources (
-    race_id binary(16),
-    typeName varchar(100),
-    id varchar(50),
-    rc bit
+CREATE TABLE powertracks.wind (
+    race_id varchar(40),                       -- Redundant, but can improve query speed. 
+    timepoint_ms bigint,
+    true_bearing_deg decimal(5,2),
+    speed_kts decimal(5,2),
+    speed_ms decimal(5,2),
+    dampened_true_bearing_deg decimal(5,2),
+    dampened_speed_kts decimal(5,2),
+    dampened_speed_ms decimal(5,2),
+    lat_deg decimal(10,7),
+    lon_deg decimal(10,7)
 );
-
-CREATE UNIQUE CLUSTERED INDEX idx ON windsources (race_id, typeName, id);
-
-
-
-
-CREATE TABLE wind (
-    race_id binary(16),
-    windSource varchar(100),
-    windSource_id varchar(50),
-    [trueBearing-deg] decimal(5,2),
-    [speed-kts] decimal(5,2),
-    [speed-m/s] decimal(5,2),
-    [timepoint-ms] bigint,
-    [dampenedTrueBearing-deg] decimal(5,2),
-    [dampenedSpeed-kts] decimal(5,2),
-    [dampenedSpeed-m/s] decimal(5,2),
-    [lat-deg] decimal(10,7),
-    [lng-deg] decimal(10,7)
-);
-
-CREATE UNIQUE CLUSTERED INDEX idx ON wind (race_id, windSource, windSource_id, [timepoint-ms]);
-CREATE INDEX idx_race On wind (race_id);
 
 
 
 
 CREATE TABLE legs
 (
-    race_id binary(16),
+    race_id varchar(40),
     leg_nr int,
     fromWaypointId binary(16),
     toWaypointId binary(16),
