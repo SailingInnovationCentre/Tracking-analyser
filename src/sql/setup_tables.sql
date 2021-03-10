@@ -85,15 +85,15 @@ CREATE TABLE powertracks.wind (
 
 
 
-CREATE TABLE legs
+CREATE TABLE powertracks.legs
 (
+    leg_id int identity(1,1) primary key,
     race_id varchar(40),
-    leg_nr int,
-    fromWaypointId binary(16),
-    toWaypointId binary(16),
-    [to] varchar(20),
-    [from] varchar(20),
-    upOrDownwindLeg bit,
+    from_waypoint_id varchar(40),
+    from_waypoint_name varchar(20), 
+    to_waypoint_id varchar(40),
+    to_waypoint_name varchar(20),
+    up_or_downwind_leg bit,
     leg_nr_from_finish int,
     distance decimal(20,2),
     correlation_tacks decimal(5,4),
@@ -101,36 +101,17 @@ CREATE TABLE legs
     correlation_avgSOG decimal(5,4),
     correlation_traveledDistance decimal(5,4),
     correlation_jibes decimal(5,4),
-    pos_startline_abs_x decimal(4,3)
-    ,pos_startline_abs_y decimal(4,3)
-    ,pos_startline_rel decimal(4,3)
-    ,cor_side_pos_startline_abs decimal(4,3)
-    ,cor_side_pos_startline_rel decimal(4,3)
-    ,avg_spd decimal(5,3)
-    ,[avg_distanceTraveled-m] decimal (6,2)
+    pos_startline_abs_x decimal(4,3),
+    pos_startline_abs_y decimal(4,3),
+    pos_startline_rel decimal(4,3),
+    cor_side_pos_startline_abs decimal(4,3),
+    cor_side_pos_startline_rel decimal(4,3),
+    avg_spd decimal(5,3),
+    avg_distance_traveled_m decimal (6,2)
 )
 
 CREATE UNIQUE CLUSTERED INDEX idx_ ON legs (race_id, leg_nr);
 CREATE INDEX idx_race ON legs (race_id);
-
-
-
-
-CREATE TABLE race_comp
-(
-    race_id binary(16),
-    comp_id binary(16),
-    regatta varchar(50),
-    rank int,
-    pos_startline_abs_x decimal(3, 2),
-    pos_startline_abs_y decimal(7, 5),
-    pos_startline_rel decimal(4, 2)
-);
-
-CREATE UNIQUE CLUSTERED INDEX idx ON race_comp (race_id, comp_id);
-CREATE INDEX idx_race ON race_comp (race_id);
-CREATE INDEX idx_comp ON race_comp (comp_id);
-
 
 
 CREATE TABLE comp_leg
@@ -185,7 +166,23 @@ CREATE INDEX idx_comp ON positions (race_id, comp_id)
 
 
 
+CREATE TABLE race_comp
+(
+    race_id binary(16),
+    comp_id binary(16),
+    regatta varchar(50),
+    rank int,
+    pos_startline_abs_x decimal(3, 2),
+    pos_startline_abs_y decimal(7, 5),
+    pos_startline_rel decimal(4, 2)
+);
 
+CREATE UNIQUE CLUSTERED INDEX idx ON race_comp (race_id, comp_id);
+CREATE INDEX idx_race ON race_comp (race_id);
+CREATE INDEX idx_comp ON race_comp (comp_id);
+
+
+-- niet nodig? 
 CREATE TABLE courses (
     race_id binary(16),
     name varchar(50),

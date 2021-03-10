@@ -4,7 +4,8 @@ import json
 from uploaders.regatta_uploader import RegattaUploader
 from uploaders.race_uploader import RaceUploader
 from uploaders.competitor_uploader import CompetitorUploader
-from uploaders.wind_uplaoder import WindUploader
+from uploaders.wind_uploader import WindUploader
+from uploaders.leg_uploader import LegUploader
 
 def main():
 
@@ -49,10 +50,17 @@ def main():
     uploader.upload_datamining(datamining_dir, conn, cursor)
     """
 
+    """
     uploader = WindUploader()
     path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/wind--fromtime=2012-01-01T10__12__03Z&totime=2019-12-31T10__12__03Z.json"
     race_id = "9c45be60-ad9f-0137-131d-06773f917276"
     uploader.upload(path, race_id, conn, cursor)
+    """
+
+    uploader = LegUploader()
+    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/competitors/legs.json"
+    race_id = "9c45be60-ad9f-0137-131d-06773f917276"
+    uploader.upload_legs(path, race_id, conn, cursor)
 
     cursor.close()
     conn.close()
