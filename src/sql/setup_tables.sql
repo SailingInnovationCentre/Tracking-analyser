@@ -87,8 +87,9 @@ CREATE TABLE powertracks.wind (
 
 CREATE TABLE powertracks.legs
 (
-    leg_id varchar(40) primary key,    -- created by code. 
+    leg_id varchar(40),    -- created by code. 
     race_id varchar(40),
+    leg_nr int,
     from_waypoint_id varchar(40),
     from_waypoint_name varchar(20), 
     to_waypoint_id varchar(40),
@@ -108,16 +109,17 @@ CREATE TABLE powertracks.legs
     cor_side_pos_startline_rel decimal(4,3),
     avg_spd decimal(5,3),
     avg_distance_traveled_m decimal (6,2)
-)
+);
 
-CREATE UNIQUE CLUSTERED INDEX idx_ ON legs (race_id, leg_nr);
-CREATE INDEX idx_race ON legs (race_id);
 
 
 CREATE TABLE powertracks.comp_leg
 (
+    comp_leg_id varchar(40),    -- created by code. 
     leg_id varchar(40),
     comp_id varchar(40),
+    start_ms bigint, 
+    end_ms bigint, 
     distance_traveled_m decimal(10,2),
     average_sog_kts decimal(5,2),
     tacks int,
@@ -137,27 +139,36 @@ CREATE TABLE powertracks.comp_leg
 );
 
 
-
-
-CREATE TABLE positions
+CREATE TABLE powertracks.markpassings
 (
-    race_id binary(16),
-    leg_nr int,
-    comp_id binary(16),
-    timepoint_ms bigint,
-    [lat-deg] decimal(20,10),
-    [lng-deg] decimal(20,10),
-    [speed-kts] decimal(10,2),
-    [truebearing-deg] decimal(10,2),
-    calculated_windSpd decimal(10,2),
-    calculated_windDir decimal(10,2),
-    [rel_spd-kts] decimal(5,3)
-)
+    race_id varchar(40),
+    leg_id varchar(40),
+    comp_id varchar(40),
+    waypoint_name varchar(20), 
+    begin_leg_ms bigint,
+    end_leg_ms bigint
+);
 
-CREATE UNIQUE CLUSTERED INDEX idx ON positions (race_id, leg_nr, comp_id, timepoint_ms ASC);
-CREATE INDEX idx_legnr ON positions (leg_nr) 
-CREATE INDEX idx_leg ON positions (race_id, leg_nr, comp_id);
-CREATE INDEX idx_comp ON positions (race_id, comp_id)
+
+CREATE TABLE powertracks.positions
+(
+    race_id varchar(40),
+    leg_id varchar(40),
+    comp_id varchar(40),
+    timepoint_ms bigint,
+    lat_deg decimal(15,10),
+    lng_deg decimal(15,10),
+    true_bearing_deg decimal(15,10),
+    speed_kts decimal(5,3),
+    calculated_wind_speed decimal(10,2),
+    calculated_wind_direction decimal(10,2),
+    relative_speed_kts decimal(5,3)
+);
+
+
+
+
+
 
 
 
@@ -276,16 +287,7 @@ VALUES (1, 'Oscillating', -1, .1, 0, .2, -.1, 0, .5, 1),
 
 
 
-CREATE TABLE temp_markpassings
-(
-    regatta varchar(50),
-    race varchar(50),
-    race_id binary(16),
-    comp_id binary(16),
-    leg_nr int,
-    begin_leg_ms bigint,
-    end_leg_ms bigint
-);
+
 
 CREATE UNIQUE INDEX idx ON temp_markpassings (regatta, race, leg_nr, comp_id);
 CREATE CLUSTERED INDEX idx_2 ON temp_markpassings (regatta, race, comp_id);
