@@ -87,7 +87,7 @@ CREATE TABLE powertracks.wind (
 
 CREATE TABLE powertracks.legs
 (
-    leg_id int identity(1,1) primary key,
+    leg_id varchar(40) primary key,    -- created by code. 
     race_id varchar(40),
     from_waypoint_id varchar(40),
     from_waypoint_name varchar(20), 
@@ -98,8 +98,8 @@ CREATE TABLE powertracks.legs
     distance decimal(20,2),
     correlation_tacks decimal(5,4),
     correlation_side decimal(5,4),
-    correlation_avgSOG decimal(5,4),
-    correlation_traveledDistance decimal(5,4),
+    correlation_avg_sog decimal(5,4),
+    correlation_traveled_distance decimal(5,4),
     correlation_jibes decimal(5,4),
     pos_startline_abs_x decimal(4,3),
     pos_startline_abs_y decimal(4,3),
@@ -114,32 +114,27 @@ CREATE UNIQUE CLUSTERED INDEX idx_ ON legs (race_id, leg_nr);
 CREATE INDEX idx_race ON legs (race_id);
 
 
-CREATE TABLE comp_leg
+CREATE TABLE powertracks.comp_leg
 (
-    race_id binary(16),
-    leg_nr int,
-    comp_id binary(16),
-    [competitor_distanceTraveled-m] decimal(10,2),
-    [competitor_averageSOG-kts] decimal(5,2),
-    competitor_tacks int,
-    competitor_jibes int,
-    competitor_penaltyCircles int,
-    competitor_rank int,
-    [competitor_gapToLeader-s] decimal(10,2),
-    [competitor_gapToLeader-m] decimal(10,2),
-    competitor_started bit,
-    competitor_finished bit,
+    leg_id varchar(40),
+    comp_id varchar(40),
+    distance_traveled_m decimal(10,2),
+    average_sog_kts decimal(5,2),
+    tacks int,
+    jibes int,
+    penalty_circles int,
+    rank int,
+    gap_to_leader_s decimal(10,2),
+    gap_to_leader_m decimal(10,2),
+    started bit,
+    finished bit,
     avg_side decimal(5,2),
     most_left decimal(5,2),
     most_right decimal(5,2),
     rel_rank decimal(3,2),
-    rel_averageSOG decimal (5,3), 
-    rel_distanceTraveled decimal(5,3)
-)
-
-CREATE UNIQUE CLUSTERED INDEX idx ON comp_leg (race_id, leg_nr, comp_id);
-CREATE INDEX idx_rac_com ON comp_leg (race_id, comp_id);
-CREATE INDEX idx_leg ON comp_leg (race_id, leg_nr);
+    rel_average_sog decimal (5,3), 
+    rel_distance_traveled decimal(5,3)
+);
 
 
 

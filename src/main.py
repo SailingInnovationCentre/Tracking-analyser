@@ -60,7 +60,7 @@ def main():
     uploader = LegUploader()
     path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/competitors/legs.json"
     race_id = "9c45be60-ad9f-0137-131d-06773f917276"
-    uploader.upload_legs(path, race_id, conn, cursor)
+    uploader.upload(path, race_id, conn, cursor)
 
     cursor.close()
     conn.close()
