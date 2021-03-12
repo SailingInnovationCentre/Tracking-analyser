@@ -1,3 +1,4 @@
+import sys
 import json
 import uuid
 
@@ -96,4 +97,44 @@ class LegUploader:
             WHERE comp_leg_id = ?"
         cursor.executemany(query, list_to_upload)
         cursor.commit()
+
+    def __create_comp_leg_lookup_list(self, race_id, comp_id, conn, cursor) : 
+        
+        query = "select start_ms, end_ms, comp_leg_id \
+            from powertracks.comp_leg cl join powertracks.legs l on cl.leg_id = l.leg_id \
+            where comp_id = ? and race_id = ?"
+    
+        rows = cursor.execute(query, (comp_id, race_id)).fetchall()
+        rows.sort()  # Sort based on start_ms. 
+
+        return rows
+
+    def upload_positions(self, json_path, race_id, conn, cursor) :
+        
+        with open(json_path) as json_file_object : 
+            json_object = json.load(json_file_object)
+
+        for comp_record in json_object['competitors'] :
+            comp_id = comp_record['id']
+            comp_leg_lookup = self.__create_comp_leg_lookup_list(race_id, comp_id, conn, cursor)
+            
+            list_to_upload = []
+            track_list = comp_record['track']
+            for track_record in track_list : 
+                ms = track_record['timepoint-ms']
+                try : 
+                    comp_leg_id = next(x[2] for x in comp_leg_lookup if ms > x[0])
+                except StopIteration : 
+                    # Outside scope of any leg. 
+                    continue
+
+                list_to_upload.append((comp_leg_id, ms, track_record['lat-deg'], track_record['lng-deg'], \
+                    track_record['truebearing-deg'], track_record['speed-kts']))
+
+            query = "INSERT INTO powertracks.positions(comp_leg_id, timepoint_ms, lat_deg, lng_deg, \
+                true_bearing_deg, speed_kts) VALUES (?,?,?,?,?,?)"
+            cursor.executemany(query, list_to_upload)
+            cursor.commit()   
+
+
   

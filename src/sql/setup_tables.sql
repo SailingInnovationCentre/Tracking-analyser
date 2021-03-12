@@ -138,23 +138,9 @@ CREATE TABLE powertracks.comp_leg
     rel_distance_traveled decimal(5,3)
 );
 
-
-CREATE TABLE powertracks.markpassings
-(
-    race_id varchar(40),
-    leg_id varchar(40),
-    comp_id varchar(40),
-    waypoint_name varchar(20), 
-    begin_leg_ms bigint,
-    end_leg_ms bigint
-);
-
-
 CREATE TABLE powertracks.positions
 (
-    race_id varchar(40),
-    leg_id varchar(40),
-    comp_id varchar(40),
+    comp_leg_id varchar(40), 
     timepoint_ms bigint,
     lat_deg decimal(15,10),
     lng_deg decimal(15,10),

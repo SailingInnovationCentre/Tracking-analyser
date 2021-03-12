@@ -57,15 +57,29 @@ def main():
     uploader.upload(path, race_id, conn, cursor)
     """
 
+    
     uploader = LegUploader()
     race_id = "9c45be60-ad9f-0137-131d-06773f917276"
+
+    """
     path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/competitors/legs.json"
     uploader.upload_legs(path, race_id, conn, cursor)
     path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/markpassings.json"
     uploader.upload_markpassings(path, race_id, conn, cursor)
+    """
+
+    query = "select start_ms, end_ms, comp_leg_id \
+        from powertracks.comp_leg cl join powertracks.legs l on cl.leg_id = l.leg_id \
+        where comp_id = ? and race_id = ?"
+
+    comp_id = "073fbbb3-049c-467d-997f-5a4a723c3430"
+    rows = cursor.execute(query, (comp_id, race_id)).fetchall()
+    for row in rows : 
+        print(row)
+
+    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/competitors/positions.json"
+    uploader.upload_positions(path, race_id, conn, cursor)
     
-
-
     cursor.close()
     conn.close()
 
