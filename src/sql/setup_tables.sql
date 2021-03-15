@@ -161,37 +161,20 @@ CREATE TABLE powertracks.positions
     relative_speed_kts decimal(9,3)
 );
 
-
-
-
-
-
-
-
-
-CREATE TABLE marks (
-    race_id binary(16),
-    id binary(16),
-    name varchar(50)
+CREATE TABLE powertracks.marks (
+    mark_id varchar(40),
+    mark_name varchar(50),
+    race_id varchar(40)
 );
 
-CREATE UNIQUE CLUSTERED INDEX idx ON marks (race_id, id);
-CREATE INDEX idx_race ON marks (race_id);
-
-CREATE TABLE marks_positions
+CREATE TABLE powertracks.marks_positions
 (
-    race_id binary(16),
-    id binary(16),
+    mark_id varchar(40),
+    timepoint_ms bigint,
+    race_id varchar(40),
     lat_deg decimal(9,6),
-    lng_deg decimal(9,6),
-    [timepoint-ms] bigint,
+    lng_deg decimal(9,6)
 );
-
-CREATE UNIQUE CLUSTERED INDEX idx ON marks_positions (race_id, id, [timepoint-ms]);
-CREATE INDEX idx_mrks ON marks_positions (race_id, id);
-
-
-
 
 CREATE TABLE powertracks.course_areas (
 	id int,
@@ -210,6 +193,8 @@ VALUES
     (4, 'Sagami', 35.1513, 139.3103),
     (5, 'Zushi', 35.1621, 139.3239),
     (6, 'Hayama', 35.1441, 139.3285);
+
+
 
 
 

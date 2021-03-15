@@ -7,6 +7,7 @@ from uploaders.competitor_uploader import CompetitorUploader
 from uploaders.wind_uploader import WindUploader
 from uploaders.leg_uploader import LegUploader
 from uploaders.live_uploader import LiveUploader
+from uploaders.marks_uploader import MarksUploader
 
 def main():
 
@@ -42,6 +43,7 @@ def main():
     uploader.upload_times(path, race_id, conn, cursor)
     """
 
+    race_id = "9c45be60-ad9f-0137-131d-06773f917276"
     """
     uploader = CompetitorUploader()
     path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/entries.json"
@@ -54,15 +56,11 @@ def main():
     """
     uploader = WindUploader()
     path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/wind--fromtime=2012-01-01T10__12__03Z&totime=2019-12-31T10__12__03Z.json"
-    race_id = "9c45be60-ad9f-0137-131d-06773f917276"
     uploader.upload(path, race_id, conn, cursor)
     """
 
-    
-    uploader = LegUploader()
-    race_id = "9c45be60-ad9f-0137-131d-06773f917276"
-
     """
+    uploader = LegUploader()
     path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/competitors/legs.json"
     uploader.upload_legs(path, race_id, conn, cursor)
     path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/markpassings.json"
@@ -71,11 +69,16 @@ def main():
     uploader.upload_positions(path, race_id, conn, cursor)
     """
 
+    """
     path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/competitors/live.json"
     uploader = LiveUploader()
     uploader.upload(path, race_id, conn, cursor)
+    """
 
-
+    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/marks/positions.json"
+    uploader = MarksUploader()
+    uploader.upload(path, race_id, conn, cursor)
+    
     cursor.close()
     conn.close()
 
