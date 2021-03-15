@@ -1,5 +1,7 @@
 import pyodbc
 import json
+import sys
+import os
 
 from uploaders.regatta_uploader import RegattaUploader
 from uploaders.race_uploader import RaceUploader
@@ -9,8 +11,27 @@ from uploaders.leg_uploader import LegUploader
 from uploaders.live_uploader import LiveUploader
 from uploaders.marks_uploader import MarksUploader
 
+
+def extract_parameters() : 
+
+    if len(sys.argv) != 2 : 
+        print ("Usage: python main.py <dir>")
+        sys.exit(1)
+
+    dir_path = sys.argv[1]
+
+    if not os.path.isdir(dir_path) : 
+        raise FileNotFoundError("Directory not found: " + dir_path)
+
+    return dir_path
+
 def main():
 
+    dir_path = extract_parameters()
+    print (dir_path)
+
+
+def other():
     server = 'sic-match-analysis.database.windows.net'
     database = 'match-analysis'
     username = 'sic-admin'

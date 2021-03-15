@@ -1,5 +1,7 @@
-CREATE SCHEMA powertracks; 
-GO; 
+-- If really starting from blank: 
+-- CREATE SCHEMA powertracks; 
+
+-- REGATTAS
 
 DROP TABLE IF EXISTS powertracks.regattas;
 
@@ -10,12 +12,10 @@ CREATE TABLE powertracks.regattas
     course_area_id varchar(40)
 );
 
--- Add indexes for boatclass and course area id? 
 
+-- RACES
 
-
-
-
+DROP TABLE IF EXISTS powertracks.races;
 
 CREATE TABLE powertracks.races
 (
@@ -39,11 +39,10 @@ CREATE TABLE powertracks.races
     sail_style_id int
 );
 
-CREATE UNIQUE CLUSTERED INDEX idx_rac ON powertracks.races (race_id);
-CREATE INDEX idx_reg ON powertracks.races (regatta);
 
+-- COMPETITORS
 
-
+DROP TABLE IF EXISTS powertracks.competitors; 
 
 CREATE TABLE powertracks.competitors
 (
@@ -64,9 +63,10 @@ CREATE TABLE powertracks.competitors
     sum_nr_maneuvers decimal(10,2)
 );
 
-CREATE UNIQUE CLUSTERED INDEX idx ON competitors (regatta, comp_id);
-CREATE INDEX idx_comp ON competitors (comp_id);
 
+-- RACE_COMP
+
+DROP TABLE IF EXISTS powertracks.race_comp;
 
 CREATE TABLE powertracks.race_comp
 (
@@ -79,21 +79,12 @@ CREATE TABLE powertracks.race_comp
 );
 
 
-CREATE TABLE powertracks.wind (
-    race_id varchar(40),                       -- Redundant, but can improve query speed. 
-    timepoint_ms bigint,
-    true_bearing_deg decimal(9,2),
-    speed_kts decimal(9,2),
-    speed_ms decimal(9,2),
-    dampened_true_bearing_deg decimal(9,2),
-    dampened_speed_kts decimal(9,2),
-    dampened_speed_ms decimal(9,2),
-    lat_deg decimal(9,6),
-    lon_deg decimal(9,6)
-);
 
 
 
+-- LEGS
+
+DROP TABLE IF EXISTS powertracks.legs; 
 
 CREATE TABLE powertracks.legs
 (
@@ -122,6 +113,9 @@ CREATE TABLE powertracks.legs
 );
 
 
+-- COMP_LEG
+
+DROP TABLE IF EXISTS powertracks.comp_leg; 
 
 CREATE TABLE powertracks.comp_leg
 (
@@ -148,6 +142,11 @@ CREATE TABLE powertracks.comp_leg
     rel_distance_traveled decimal(9,3)
 );
 
+
+-- POSITIONS 
+
+DROP TABLE IF EXISTS powertracks.positions; 
+
 CREATE TABLE powertracks.positions
 (
     comp_leg_id varchar(40), 
@@ -161,11 +160,36 @@ CREATE TABLE powertracks.positions
     relative_speed_kts decimal(9,3)
 );
 
+
+-- WIND
+
+DROP TABLE IF EXISTS powertracks.wind; 
+
+CREATE TABLE powertracks.wind (
+    race_id varchar(40),                       -- Redundant, but can improve query speed. 
+    timepoint_ms bigint,
+    true_bearing_deg decimal(9,2),
+    speed_kts decimal(9,2),
+    speed_ms decimal(9,2),
+    dampened_true_bearing_deg decimal(9,2),
+    dampened_speed_kts decimal(9,2),
+    dampened_speed_ms decimal(9,2),
+    lat_deg decimal(9,6),
+    lon_deg decimal(9,6)
+);
+
+
+-- MARKS
+
+DROP TABLE IF EXISTS powertracks.marks;
+
 CREATE TABLE powertracks.marks (
     mark_id varchar(40),
     mark_name varchar(50),
     race_id varchar(40)
 );
+
+DROP TABLE IF EXISTS powertracks.marks_positions; 
 
 CREATE TABLE powertracks.marks_positions
 (
@@ -176,14 +200,17 @@ CREATE TABLE powertracks.marks_positions
     lng_deg decimal(9,6)
 );
 
+
+-- COURSE AREAS
+
+DROP TABLE IF EXISTS powertracks.course_areas;
+
 CREATE TABLE powertracks.course_areas (
-	id int,
+	id int PRIMARY KEY,
     course_area varchar(20),
     lat_deg decimal(9,6),
     lng_deg decimal(9,6),
 );
-
-CREATE UNIQUE INDEX idx ON powertracks.course_areas (id);
 
 INSERT INTO powertracks.course_areas(id, course_area, lat_deg, lng_deg)
 VALUES 
@@ -195,12 +222,13 @@ VALUES
     (6, 'Hayama', 35.1441, 139.3285);
 
 
+-- SAILING STYLE
 
+DROP TABLE IF EXISTS powertracks.sailing_style;
 
-
-CREATE TABLE sailing_style
+CREATE TABLE powertracks.sailing_style
 (
-    id int,
+    id int primary key,
     style varchar(50),
     tacks_lower decimal(3,2),
     tacks_upper decimal(3,2),
@@ -212,15 +240,13 @@ CREATE TABLE sailing_style
     distance_upper decimal(3,2)
 )
 
-
-CREATE UNIQUE CLUSTERED INDEX idx ON sailing_style (id);
-
-INSERT INTO sailing_style
-VALUES (1, 'Oscillating', -1, .1, 0, .2, -.1, 0, .5, 1),
-(2, 'Persistent', .5, 1, .5, 1, -.2, .2, .5, 1),
-(3, 'Geographical', -.2, .2, .5, 1, -1, -.3, .3, -1),
-(4, 'Connect Pressure', -.5, 0, 0,.2, -1, -.8, -1, 0),
-(5, 'Random', 0,0, 0, 0, 0, 0, 0, 0);
+INSERT INTO powertracks.sailing_style
+VALUES 
+    (1, 'Oscillating', -1, .1, 0, .2, -.1, 0, .5, 1),
+    (2, 'Persistent', .5, 1, .5, 1, -.2, .2, .5, 1),
+    (3, 'Geographical', -.2, .2, .5, 1, -1, -.3, .3, -1),
+    (4, 'Connect Pressure', -.5, 0, 0,.2, -1, -.8, -1, 0),
+    (5, 'Random', 0,0, 0, 0, 0, 0, 0, 0);
 
 
 
@@ -229,7 +255,9 @@ VALUES (1, 'Oscillating', -1, .1, 0, .2, -.1, 0, .5, 1),
 
 
 -- niet nodig? 
-CREATE TABLE courses (
+DROP TABLE IF EXISTS powertracks.courses; 
+
+CREATE TABLE powertracks.courses (
     race_id binary(16),
     name varchar(50),
     passingInstruction varchar(50),
@@ -248,6 +276,3 @@ CREATE TABLE courses (
     mark_nr int,
     mark_nr_from_finish int
 );
-
-CREATE UNIQUE CLUSTERED INDEX idx ON courses (race_id, mark_nr);
-CREATE INDEX idx_race ON courses (race_id);
