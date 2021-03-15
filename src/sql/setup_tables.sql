@@ -72,14 +72,14 @@ CREATE INDEX idx_comp ON competitors (comp_id);
 CREATE TABLE powertracks.wind (
     race_id varchar(40),                       -- Redundant, but can improve query speed. 
     timepoint_ms bigint,
-    true_bearing_deg decimal(5,2),
-    speed_kts decimal(5,2),
-    speed_ms decimal(5,2),
-    dampened_true_bearing_deg decimal(5,2),
-    dampened_speed_kts decimal(5,2),
-    dampened_speed_ms decimal(5,2),
-    lat_deg decimal(10,7),
-    lon_deg decimal(10,7)
+    true_bearing_deg decimal(9,2),
+    speed_kts decimal(9,2),
+    speed_ms decimal(9,2),
+    dampened_true_bearing_deg decimal(9,2),
+    dampened_speed_kts decimal(9,2),
+    dampened_speed_ms decimal(9,2),
+    lat_deg decimal(9,6),
+    lon_deg decimal(9,6)
 );
 
 
@@ -96,19 +96,19 @@ CREATE TABLE powertracks.legs
     to_waypoint_name varchar(20),
     up_or_downwind_leg bit,
     leg_nr_from_finish int,
-    distance decimal(20,2),
-    correlation_tacks decimal(5,4),
-    correlation_side decimal(5,4),
-    correlation_avg_sog decimal(5,4),
-    correlation_traveled_distance decimal(5,4),
-    correlation_jibes decimal(5,4),
-    pos_startline_abs_x decimal(4,3),
-    pos_startline_abs_y decimal(4,3),
-    pos_startline_rel decimal(4,3),
-    cor_side_pos_startline_abs decimal(4,3),
-    cor_side_pos_startline_rel decimal(4,3),
+    distance decimal(9,2),
+    correlation_tacks decimal(9,4),
+    correlation_side decimal(9,4),
+    correlation_avg_sog decimal(9,4),
+    correlation_traveled_distance decimal(9,4),
+    correlation_jibes decimal(9,4),
+    pos_startline_abs_x decimal(9,3),
+    pos_startline_abs_y decimal(9,3),
+    pos_startline_rel decimal(9,3),
+    cor_side_pos_startline_abs decimal(9,3),
+    cor_side_pos_startline_rel decimal(9,3),
     avg_spd decimal(5,3),
-    avg_distance_traveled_m decimal (6,2)
+    avg_distance_traveled_m decimal (9,2)
 );
 
 
@@ -120,83 +120,48 @@ CREATE TABLE powertracks.comp_leg
     comp_id varchar(40),
     start_ms bigint, 
     end_ms bigint, 
-    distance_traveled_m decimal(10,2),
-    average_sog_kts decimal(5,2),
+    distance_traveled_m decimal(9,2),
+    average_sog_kts decimal(9,2),
     tacks int,
     jibes int,
     penalty_circles int,
     rank int,
-    gap_to_leader_s decimal(10,2),
-    gap_to_leader_m decimal(10,2),
+    gap_to_leader_s decimal(9,2),
+    gap_to_leader_m decimal(9,2),
     started bit,
     finished bit,
-    avg_side decimal(5,2),
-    most_left decimal(5,2),
-    most_right decimal(5,2),
-    rel_rank decimal(3,2),
-    rel_average_sog decimal (5,3), 
-    rel_distance_traveled decimal(5,3)
+    avg_side decimal(9,2),
+    most_left decimal(9,2),
+    most_right decimal(9,2),
+    rel_rank decimal(9,2),
+    rel_average_sog decimal (9,3), 
+    rel_distance_traveled decimal(9,3)
 );
 
 CREATE TABLE powertracks.positions
 (
     comp_leg_id varchar(40), 
     timepoint_ms bigint,
-    lat_deg decimal(15,10),
-    lng_deg decimal(15,10),
-    true_bearing_deg decimal(15,10),
-    speed_kts decimal(5,3),
-    calculated_wind_speed decimal(10,2),
-    calculated_wind_direction decimal(10,2),
-    relative_speed_kts decimal(5,3)
+    lat_deg decimal(9,6),
+    lng_deg decimal(9,6),
+    true_bearing_deg decimal(19,10),
+    speed_kts decimal(9,3),
+    calculated_wind_speed decimal(9,2),
+    calculated_wind_direction decimal(9,2),
+    relative_speed_kts decimal(9,3)
 );
 
-
-
-
-
-
-
-
-CREATE TABLE race_comp
+CREATE TABLE powertracks.race_comp
 (
-    race_id binary(16),
-    comp_id binary(16),
-    regatta varchar(50),
+    race_id varchar(40),
+    comp_id varchar(40),
     rank int,
-    pos_startline_abs_x decimal(3, 2),
-    pos_startline_abs_y decimal(7, 5),
-    pos_startline_rel decimal(4, 2)
+    pos_startline_abs_x decimal(9, 2),
+    pos_startline_abs_y decimal(9, 5),
+    pos_startline_rel decimal(9, 2)
 );
 
-CREATE UNIQUE CLUSTERED INDEX idx ON race_comp (race_id, comp_id);
-CREATE INDEX idx_race ON race_comp (race_id);
-CREATE INDEX idx_comp ON race_comp (comp_id);
 
-
--- niet nodig? 
-CREATE TABLE courses (
-    race_id binary(16),
-    name varchar(50),
-    passingInstruction varchar(50),
-    [controlPoint.@class] varchar(50),
-    [controlPoint.name] varchar(50),
-    [controlPoint.id] binary(16),
-    [controlPoint.left.@class]varchar(50),
-    [controlPoint.left.name] varchar(50),
-    [controlPoint.left.id] binary(16),
-    [controlPoint.left.type] varchar(50),
-    [controlPoint.right.@class]varchar(50),
-    [controlPoint.right.name] varchar(50),
-    [controlPoint.right.id] binary(16),
-    [controlPoint.right.type] varchar(50),
-    [controlPoint.type] varchar(50),
-    mark_nr int,
-    mark_nr_from_finish int
-);
-
-CREATE UNIQUE CLUSTERED INDEX idx ON courses (race_id, mark_nr);
-CREATE INDEX idx_race ON courses (race_id);
 
 
 
@@ -215,8 +180,8 @@ CREATE TABLE marks_positions
 (
     race_id binary(16),
     id binary(16),
-    [lat-deg] decimal(10,7),
-    [lng-deg] decimal(10,7),
+    lat_deg decimal(9,6),
+    lng_deg decimal(9,6),
     [timepoint-ms] bigint,
 );
 
@@ -226,23 +191,23 @@ CREATE INDEX idx_mrks ON marks_positions (race_id, id);
 
 
 
-CREATE TABLE course_areas (
+CREATE TABLE powertracks.course_areas (
 	id int,
     course_area varchar(20),
-    lat_deg decimal(10,7),
-    lng_deg decimal(10,7)
+    lat_deg decimal(9,6),
+    lng_deg decimal(9,6),
 );
 
-CREATE UNIQUE INDEX idx ON course_areas (id);
+CREATE UNIQUE INDEX idx ON powertracks.course_areas (id);
 
-INSERT INTO course_areas(id, course_area, lat_deg, lng_deg)
-VALUES (1, 'Enoshima', 35.1756, 139.2951),
-(2, 'Fujisawa',35.1583, 139.2920),
-(3, 'Kamakura', 35.1744, 139.3079),
-(4, 'Sagami', 35.1513, 139.3103),
-(5, 'Zushi', 35.1621, 139.3239),
-(6, 'Hayama', 35.1441, 139.3285);
-
+INSERT INTO powertracks.course_areas(id, course_area, lat_deg, lng_deg)
+VALUES 
+    (1, 'Enoshima', 35.1756, 139.2951),
+    (2, 'Fujisawa',35.1583, 139.2920),
+    (3, 'Kamakura', 35.1744, 139.3079),
+    (4, 'Sagami', 35.1513, 139.3103),
+    (5, 'Zushi', 35.1621, 139.3239),
+    (6, 'Hayama', 35.1441, 139.3285);
 
 
 
@@ -275,5 +240,27 @@ VALUES (1, 'Oscillating', -1, .1, 0, .2, -.1, 0, .5, 1),
 
 
 
-CREATE UNIQUE INDEX idx ON temp_markpassings (regatta, race, leg_nr, comp_id);
-CREATE CLUSTERED INDEX idx_2 ON temp_markpassings (regatta, race, comp_id);
+
+-- niet nodig? 
+CREATE TABLE courses (
+    race_id binary(16),
+    name varchar(50),
+    passingInstruction varchar(50),
+    [controlPoint.@class] varchar(50),
+    [controlPoint.name] varchar(50),
+    [controlPoint.id] binary(16),
+    [controlPoint.left.@class]varchar(50),
+    [controlPoint.left.name] varchar(50),
+    [controlPoint.left.id] binary(16),
+    [controlPoint.left.type] varchar(50),
+    [controlPoint.right.@class]varchar(50),
+    [controlPoint.right.name] varchar(50),
+    [controlPoint.right.id] binary(16),
+    [controlPoint.right.type] varchar(50),
+    [controlPoint.type] varchar(50),
+    mark_nr int,
+    mark_nr_from_finish int
+);
+
+CREATE UNIQUE CLUSTERED INDEX idx ON courses (race_id, mark_nr);
+CREATE INDEX idx_race ON courses (race_id);
