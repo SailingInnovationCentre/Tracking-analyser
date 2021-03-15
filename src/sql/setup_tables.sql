@@ -68,6 +68,16 @@ CREATE UNIQUE CLUSTERED INDEX idx ON competitors (regatta, comp_id);
 CREATE INDEX idx_comp ON competitors (comp_id);
 
 
+CREATE TABLE powertracks.race_comp
+(
+    race_id varchar(40),
+    comp_id varchar(40),
+    rank int,
+    pos_startline_abs_x decimal(9, 2),
+    pos_startline_abs_y decimal(9, 5),
+    pos_startline_rel decimal(9, 2)
+);
+
 
 CREATE TABLE powertracks.wind (
     race_id varchar(40),                       -- Redundant, but can improve query speed. 
@@ -151,15 +161,7 @@ CREATE TABLE powertracks.positions
     relative_speed_kts decimal(9,3)
 );
 
-CREATE TABLE powertracks.race_comp
-(
-    race_id varchar(40),
-    comp_id varchar(40),
-    rank int,
-    pos_startline_abs_x decimal(9, 2),
-    pos_startline_abs_y decimal(9, 5),
-    pos_startline_rel decimal(9, 2)
-);
+
 
 
 
