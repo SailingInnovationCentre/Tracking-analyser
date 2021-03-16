@@ -9,7 +9,7 @@ class LegUploader:
         self.dict_leg_comp_id = {}   # (race_id, leg_nr, comp_id) -> leg_comp_id
 
     def upload_legs(self, json_path, race_id, conn, cursor) : 
-
+        print(json_path)
         with open(json_path) as json_file_object : 
             json_object = json.load(json_file_object)
         
@@ -73,7 +73,7 @@ class LegUploader:
         cursor.commit()
     
     def upload_markpassings(self, json_path, race_id, conn, cursor) :
-
+        print(json_path)
         with open(json_path) as json_file_object : 
             json_object = json.load(json_file_object)
 
@@ -110,7 +110,7 @@ class LegUploader:
         return rows
 
     def upload_positions(self, json_path, race_id, conn, cursor) :
-        
+        print(json_path)
         with open(json_path) as json_file_object : 
             json_object = json.load(json_file_object)
 

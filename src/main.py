@@ -25,6 +25,7 @@ def main():
 
     regatta_dirs = find_regatta_dirs(root_path)
     for regatta_dir in regatta_dirs : 
+        upload_competitors(regatta_dir, conn, cursor)
         upload_regatta(regatta_dir, conn, cursor)
 
 def upload_regattas_overview(root_path, conn, cursor) : 
@@ -52,8 +53,23 @@ def upload_regatta(regatta_dir, conn, cursor) :
 
         times_json_path = os.path.join(race_dir, 'times.json')
         uploader.upload_times(times_json_path, race_id, conn, cursor)
-        
 
+        wind_file_path = find_wind_file(race_dir)
+        wind_uploader = WindUploader()
+        wind_uploader.upload(wind_file_path, race_id, conn, cursor)
+
+
+
+
+        
+def upload_competitors(regatta_dir, conn, cursor) :
+    uploader = CompetitorUploader()
+    
+    path = os.path.join(regatta_dir, 'entries.json')
+    uploader.upload_entries(path, conn, cursor)
+
+    datamining_dir = os.path.join(regatta_dir, 'datamining')
+    uploader.upload_datamining(datamining_dir, conn, cursor)
 
 def extract_parameters() : 
 
@@ -97,43 +113,17 @@ def get_immediate_subdirectories(a_dir):
     return [os.path.join(a_dir, name) for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]
 
-
+def find_wind_file(race_dir) : 
+    l = [ filename for filename in os.listdir(race_dir) if filename.startswith('wind--')]
+    if len(l) != 1 : 
+        raise Exception("Too many possible wind files.")
+    return os.path.join(race_dir, l[0])
 
 def other():
 
 
     """
-    uploader = RaceUploader()
     
-    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races.json"
-    dict_name_to_id = uploader.upload_races(path, conn, cursor)
-
-    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/windsummary.json"
-    uploader.upload_windsummary(path, dict_name_to_id, conn, cursor)
-
-    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/firstlegbearing.json"
-    race_id = "9c45be60-ad9f-0137-131d-06773f917276"
-    uploader.upload_first_leg_bearing(path, race_id, conn, cursor)
-        
-    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/times.json"
-    race_id = "9c45be60-ad9f-0137-131d-06773f917276"
-    uploader.upload_times(path, race_id, conn, cursor)
-    """
-
-    race_id = "9c45be60-ad9f-0137-131d-06773f917276"
-    """
-    uploader = CompetitorUploader()
-    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/entries.json"
-    uploader.upload_entries(path, conn, cursor)
-
-    datamining_dir = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/datamining/"
-    uploader.upload_datamining(datamining_dir, conn, cursor)
-    """
-
-    """
-    uploader = WindUploader()
-    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/wind--fromtime=2012-01-01T10__12__03Z&totime=2019-12-31T10__12__03Z.json"
-    uploader.upload(path, race_id, conn, cursor)
     """
 
     """

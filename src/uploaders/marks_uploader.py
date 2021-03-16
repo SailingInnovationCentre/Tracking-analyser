@@ -6,6 +6,7 @@ class MarksUploader:
         pass
 
     def upload(self, json_path, race_id, conn, cursor) : 
+        print(json_path)
         with open(json_path) as json_file_object : 
             json_object = json.load(json_file_object)
     

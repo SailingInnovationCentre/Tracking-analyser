@@ -1,4 +1,5 @@
 import json
+import os.path
 
 class CompetitorUploader:    
 
@@ -6,6 +7,7 @@ class CompetitorUploader:
         pass
 
     def upload_entries(self, json_path, conn, cursor) : 
+        print(json_path)
         with open(json_path) as json_file_object : 
             json_object = json.load(json_file_object)
     
@@ -23,19 +25,20 @@ class CompetitorUploader:
         cursor.commit()
 
     def upload_datamining(self, json_dir, conn, cursor) : 
-        avg_json_path = json_dir + "AvgSpeed_Per_Competitor.json"
+        print(json_dir)
+        avg_json_path = os.path.join(json_dir, "AvgSpeed_Per_Competitor.json")
         self.upload_avg_json(avg_json_path, conn, cursor)
 
-        avg_legtype_json_path = json_dir + "AvgSpeed_Per_Competitor-LegType.json"
+        avg_legtype_json_path = os.path.join(json_dir, "AvgSpeed_Per_Competitor-LegType.json")
         self.upload_avg_legtype_json(avg_legtype_json_path, conn, cursor)
 
-        dist_json_path = json_dir + "DistanceTraveled_Per_Competitor.json"
+        dist_json_path = os.path.join(json_dir, "DistanceTraveled_Per_Competitor.json")
         self.upload_dist_json(dist_json_path, conn, cursor)
 
-        dist_legtype_json_path = json_dir + "DistanceTraveled_Per_Competitor-LegType.json"
+        dist_legtype_json_path = os.path.join(json_dir, "DistanceTraveled_Per_Competitor-LegType.json")
         self.upload_dist_legtype_json(dist_legtype_json_path, conn, cursor)
 
-        maneuver_json_path = json_dir + "Maneuvers_Per_Competitor.json"
+        maneuver_json_path = os.path.join(json_dir, "Maneuvers_Per_Competitor.json")
         self.upload_maneuvers_json(maneuver_json_path, conn, cursor)
 
     def upload_avg_json(self, json_path, conn, cursor) : 
