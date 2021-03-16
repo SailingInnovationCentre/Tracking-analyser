@@ -9,6 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "src/main.py",
+            "args": ["C:\\data\\powertracks\\hwcs2020-round1"],
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}"
         }

@@ -1,4 +1,5 @@
 import json
+import re
 
 class RaceUploader:    
 
@@ -6,7 +7,7 @@ class RaceUploader:
         pass
 
     def upload_races(self, json_path, conn, cursor) : 
-
+        print (json_path)
         with open(json_path) as json_file_object : 
             json_object = json.load(json_file_object)
 
@@ -16,11 +17,15 @@ class RaceUploader:
         races_list = json_object['races']
         for record in races_list : 
             name = record['name']
-            short_name = name.split(" ")[0]
+            short_name = self.make_short(name)
             race_id = record['id']
             list_to_upload.append((race_id, regatta_id, name, short_name))
             dict_name_to_id[short_name] = race_id
             dict_name_to_id[name] = race_id
+            if re.match('[a-zA-Z]0[0-9]', short_name) is not None :
+                # R08 -> R8
+                shorter_name = short_name[0] + short_name[2] 
+                dict_name_to_id[shorter_name] = race_id
 
         query = "INSERT INTO powertracks.races(race_id, regatta_id, race_name, race_short_name) VALUES (?,?,?,?)"
         cursor.executemany(query, list_to_upload)
@@ -28,8 +33,22 @@ class RaceUploader:
         
         return dict_name_to_id
 
+    def make_short(self, long_name) : 
+        i_space = long_name.find(' ')
+        i_bracket = long_name.find('(')
+        if i_space == -1 : 
+            i_space = 100
+        if i_bracket == -1 : 
+            i_bracket = 100
+        
+        min_index = min(i_space, i_bracket)
+        if min_index == 100 : 
+            return None
+
+        return long_name[:min_index]
 
     def upload_windsummary(self, json_path, dict_short_name_to_id, conn, cursor) : 
+        print (json_path)
         with open(json_path) as json_file_object : 
             json_object = json.load(json_file_object)
             
@@ -51,6 +70,7 @@ class RaceUploader:
         cursor.commit()
 
     def upload_first_leg_bearing(self, json_path, race_id, conn, cursor) : 
+        print (json_path)
         with open(json_path) as json_file_object : 
             json_object = json.load(json_file_object)
         
@@ -61,6 +81,7 @@ class RaceUploader:
         cursor.commit()
 
     def upload_times(self, json_path, race_id, conn, cursor) :
+        print (json_path)
         with open(json_path) as json_file_object : 
             json_object = json.load(json_file_object)
 
