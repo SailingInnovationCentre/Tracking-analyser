@@ -19,7 +19,8 @@ class MarksUploader:
             mark_name = record['name']
             list_to_upload.append((mark_id, mark_name, race_id))
 
-            for pos_record in record['track'] : 
+            track_list = [ rec for idx, rec in enumerate(record['track']) if idx % 100 == 0 ]
+            for pos_record in track_list : 
                 list_positions_to_upload.append((mark_id, pos_record['timepoint-ms'],\
                     race_id, pos_record['lat-deg'], pos_record['lng-deg']))
             

@@ -11,9 +11,6 @@ from uploaders.leg_uploader import LegUploader
 from uploaders.live_uploader import LiveUploader
 from uploaders.marks_uploader import MarksUploader
 
-
-
-
 def main():
 
     root_path = extract_parameters()
@@ -26,11 +23,15 @@ def main():
     regatta_dirs = find_regatta_dirs(root_path)
     for regatta_dir in regatta_dirs : 
 
-        #if "Laser" not in regatta_dir : 
+        #if "Finn" not in regatta_dir : 
         #    continue
 
         upload_competitors(regatta_dir, conn, cursor)
         upload_regatta(regatta_dir, conn, cursor)
+    
+    cursor.close()
+    conn.close()
+
 
 def upload_regattas_overview(root_path, conn, cursor) : 
     path = os.path.join(root_path, 'regattas.json')
@@ -51,6 +52,7 @@ def upload_regatta(regatta_dir, conn, cursor) :
         #if "R1 (Laser Standard)" not in race_dir : 
         #    continue
 
+        
         race_dir_basename = os.path.basename(race_dir)
         short_name = uploader.make_short(race_dir_basename)
         race_id = dict_name_to_id[short_name]
@@ -72,6 +74,13 @@ def upload_regatta(regatta_dir, conn, cursor) :
         path = os.path.join(race_dir, 'competitors', 'positions.json')
         leg_uploader.upload_positions(path, race_id, conn, cursor)
 
+        path = os.path.join(race_dir, 'competitors', 'live.json')
+        live_uploader = LiveUploader()
+        live_uploader.upload(path, race_id, conn, cursor)
+
+        marks_uploader = MarksUploader()
+        path = os.path.join(race_dir, 'marks', 'positions.json')
+        marks_uploader.upload(path, race_id, conn, cursor)
 
 def upload_competitors(regatta_dir, conn, cursor) :
     uploader = CompetitorUploader()
@@ -129,26 +138,6 @@ def find_wind_file(race_dir) :
     if len(l) != 1 : 
         raise Exception("Too many possible wind files.")
     return os.path.join(race_dir, l[0])
-
-def other():
-
-
-
-    """
-    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/competitors/live.json"
-    uploader = LiveUploader()
-    uploader.upload(path, race_id, conn, cursor)
-    """
-
-    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/marks/positions.json"
-    uploader = MarksUploader()
-    uploader.upload(path, race_id, conn, cursor)
-    
-    cursor.close()
-    conn.close()
-
-    print("reached the end.")
-
 
 if __name__ == "__main__":
     main()
