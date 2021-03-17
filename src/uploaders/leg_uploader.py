@@ -45,15 +45,17 @@ class LegUploader:
 
             # Add leg_comps
             competitor_lst = leg_record['competitors']
-            for comp_record in competitor_lst : 
+            for comp_record in competitor_lst :
                 comp_id = comp_record['id']
                 comp_leg_id = str(uuid.uuid4())
                 self.dict_leg_comp_id[(race_id, leg_nr, comp_id)] = comp_leg_id
 
-                comp_leg_list_to_upload.append((comp_leg_id, leg_id, comp_id, \
-                    comp_record['distanceTraveled-m'], comp_record['averageSOG-kts'], \
+                dist = 0.0 if 'distanceTraveled-m' not in comp_record else comp_record['distanceTraveled-m']
+                avg_sog = 0.0 if 'averageSOG-kts' not in comp_record else comp_record['averageSOG-kts']
+
+                comp_leg_list_to_upload.append((comp_leg_id, leg_id, comp_id, dist, avg_sog, \
                     comp_record['tacks'], comp_record['jibes'], comp_record['penaltyCircles'], comp_record['rank'], \
-                    comp_record['gapToLeader-s'], comp_record['gapToLeader-m'], \
+                    max(0,comp_record['gapToLeader-s']), comp_record['gapToLeader-m'], \
                     comp_record['started'], comp_record['finished']))
 
             fromWaypointIdSet.add(fromWaypointId)
@@ -91,21 +93,27 @@ class LegUploader:
                 if leg_nr < len(mp_list) - 1 : 
                     comp_leg_id = self.dict_leg_comp_id[(race_id, leg_nr, comp_id)]
                     list_to_upload.append([ms, 0, comp_leg_id])
-        
-        query = "UPDATE powertracks.comp_leg \
-            SET start_ms = ?, end_ms = ? \
-            WHERE comp_leg_id = ?"
-        cursor.executemany(query, list_to_upload)
-        cursor.commit()
+
+        if len(list_to_upload) > 0 : 
+            query = "UPDATE powertracks.comp_leg \
+                SET start_ms = ?, end_ms = ? \
+                WHERE comp_leg_id = ?"
+            cursor.executemany(query, list_to_upload)
+            cursor.commit()
+        else :
+            print(f"WARNING: No markpassings found in race {race_id}")
 
     def __create_comp_leg_lookup_list(self, race_id, comp_id, conn, cursor) : 
         
         query = "select start_ms, end_ms, comp_leg_id \
             from powertracks.comp_leg cl join powertracks.legs l on cl.leg_id = l.leg_id \
-            where comp_id = ? and race_id = ?"
+            where comp_id = ? and race_id = ? and cl.start_ms is not null and cl.end_ms is not null"
     
         rows = cursor.execute(query, (comp_id, race_id)).fetchall()
         rows.sort()  # Sort based on start_ms. 
+
+        if len(rows) == 0 : 
+            print(rows)
 
         return rows
 
@@ -119,11 +127,11 @@ class LegUploader:
             comp_leg_lookup = self.__create_comp_leg_lookup_list(race_id, comp_id, conn, cursor)
             
             list_to_upload = []
-            track_list = comp_record['track']
+            track_list = [ rec for idx, rec in enumerate(comp_record['track']) if idx % 10 == 0 ]
             for track_record in track_list : 
                 ms = track_record['timepoint-ms']
                 try : 
-                    comp_leg_id = next(x[2] for x in comp_leg_lookup if ms > x[0])
+                    comp_leg_id = next(x[2] for x in comp_leg_lookup if ms > x[0] and ms < x[1])
                 except StopIteration : 
                     # Outside scope of any leg. 
                     continue
@@ -131,10 +139,13 @@ class LegUploader:
                 list_to_upload.append((comp_leg_id, ms, track_record['lat-deg'], track_record['lng-deg'], \
                     track_record['truebearing-deg'], track_record['speed-kts']))
 
-            query = "INSERT INTO powertracks.positions(comp_leg_id, timepoint_ms, lat_deg, lng_deg, \
-                true_bearing_deg, speed_kts) VALUES (?,?,?,?,?,?)"
-            cursor.executemany(query, list_to_upload)
-            cursor.commit()   
+            if len(list_to_upload) > 0 : 
+                query = "INSERT INTO powertracks.positions(comp_leg_id, timepoint_ms, lat_deg, lng_deg, \
+                    true_bearing_deg, speed_kts) VALUES (?,?,?,?,?,?)"
+                cursor.executemany(query, list_to_upload)
+                cursor.commit()
+            else : 
+                print(f"WARNING: No positions in legs found for competitor {comp_id} in race {race_id}")
 
 
   

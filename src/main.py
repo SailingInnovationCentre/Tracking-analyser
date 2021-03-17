@@ -25,6 +25,10 @@ def main():
 
     regatta_dirs = find_regatta_dirs(root_path)
     for regatta_dir in regatta_dirs : 
+
+        #if "Laser" not in regatta_dir : 
+        #    continue
+
         upload_competitors(regatta_dir, conn, cursor)
         upload_regatta(regatta_dir, conn, cursor)
 
@@ -38,30 +42,37 @@ def upload_regatta(regatta_dir, conn, cursor) :
 
     races_json_path = os.path.join(regatta_dir, 'races.json') 
     dict_name_to_id = uploader.upload_races(races_json_path, conn, cursor)
-
     windsummary_json_path = os.path.join(regatta_dir, 'windsummary.json')
     uploader.upload_windsummary(windsummary_json_path, dict_name_to_id, conn, cursor)
 
     race_dirs = find_races_dirs(regatta_dir)
     for race_dir in race_dirs : 
+
+        #if "R1 (Laser Standard)" not in race_dir : 
+        #    continue
+
         race_dir_basename = os.path.basename(race_dir)
         short_name = uploader.make_short(race_dir_basename)
         race_id = dict_name_to_id[short_name]
 
         flb_json_path = os.path.join(race_dir, 'firstlegbearing.json')
         uploader.upload_first_leg_bearing(flb_json_path, race_id, conn, cursor)
-
         times_json_path = os.path.join(race_dir, 'times.json')
         uploader.upload_times(times_json_path, race_id, conn, cursor)
 
-        wind_file_path = find_wind_file(race_dir)
         wind_uploader = WindUploader()
+        wind_file_path = find_wind_file(race_dir)
         wind_uploader.upload(wind_file_path, race_id, conn, cursor)
 
+        leg_uploader = LegUploader()
+        path = os.path.join(race_dir, 'competitors', 'legs.json')
+        leg_uploader.upload_legs(path, race_id, conn, cursor)
+        path = os.path.join(race_dir, 'markpassings.json')
+        leg_uploader.upload_markpassings(path, race_id, conn, cursor)
+        path = os.path.join(race_dir, 'competitors', 'positions.json')
+        leg_uploader.upload_positions(path, race_id, conn, cursor)
 
 
-
-        
 def upload_competitors(regatta_dir, conn, cursor) :
     uploader = CompetitorUploader()
     
@@ -122,19 +133,6 @@ def find_wind_file(race_dir) :
 def other():
 
 
-    """
-    
-    """
-
-    """
-    uploader = LegUploader()
-    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/competitors/legs.json"
-    uploader.upload_legs(path, race_id, conn, cursor)
-    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/markpassings.json"
-    uploader.upload_markpassings(path, race_id, conn, cursor)
-    path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/competitors/positions.json"
-    uploader.upload_positions(path, race_id, conn, cursor)
-    """
 
     """
     path = "C:/data/powertracks/hwcs2020-round1/regattas/HWCS 2020 Round 1 - 49er/races/M Medal (49ER)/competitors/live.json"
