@@ -144,6 +144,10 @@ class CompetitorUploader:
             cursor.commit()
 
     def upload_maneuvers_json(self, json_path, conn, cursor) : 
+        if not os.path.exists(json_path) : 
+            # In tokyo2019 data. 
+            return 
+
         with open(json_path) as json_file_object : 
             json_object = json.load(json_file_object)
 

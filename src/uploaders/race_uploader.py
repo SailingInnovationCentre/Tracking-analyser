@@ -43,7 +43,7 @@ class RaceUploader:
         
         min_index = min(i_space, i_bracket)
         if min_index == 100 : 
-            return None
+            return long_name
 
         return long_name[:min_index]
 
@@ -55,6 +55,15 @@ class RaceUploader:
         list_to_upload = []
         for record in json_object : 
             short_name = record['racecolumn']
+            
+            # Super hack. 
+            if short_name == 'M' and short_name not in dict_short_name_to_id : 
+                if "R13" in dict_short_name_to_id :
+                    short_name = "R13"
+                elif "R11" in dict_short_name_to_id : 
+                    # For RS:X races. 
+                    short_name = "R11"
+
             race_id = dict_short_name_to_id[short_name]
             fleet = record['fleet']
             lo = record['trueLowerboundWindInKnots']

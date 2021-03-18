@@ -23,7 +23,7 @@ def main():
     regatta_dirs = find_regatta_dirs(root_path)
     for regatta_dir in regatta_dirs : 
 
-        #if "Finn" not in regatta_dir : 
+        #if "RS" not in regatta_dir : 
         #    continue
 
         upload_competitors(regatta_dir, conn, cursor)
@@ -49,9 +49,8 @@ def upload_regatta(regatta_dir, conn, cursor) :
     race_dirs = find_races_dirs(regatta_dir)
     for race_dir in race_dirs : 
 
-        #if "R1 (Laser Standard)" not in race_dir : 
+        #if "R1" not in race_dir : 
         #    continue
-
         
         race_dir_basename = os.path.basename(race_dir)
         short_name = uploader.make_short(race_dir_basename)
@@ -134,7 +133,7 @@ def get_immediate_subdirectories(a_dir):
             if os.path.isdir(os.path.join(a_dir, name))]
 
 def find_wind_file(race_dir) : 
-    l = [ filename for filename in os.listdir(race_dir) if filename.startswith('wind--')]
+    l = [ filename for filename in os.listdir(race_dir) if filename.startswith('wind--') and filename.endswith('json')]
     if len(l) != 1 : 
         raise Exception("Too many possible wind files.")
     return os.path.join(race_dir, l[0])

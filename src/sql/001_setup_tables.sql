@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS powertracks.regattas;
 
 CREATE TABLE powertracks.regattas
 (
-    regatta_id varchar(50) PRIMARY KEY,
+    regatta_id varchar(100) PRIMARY KEY,
     boatclass varchar(50),
     course_area_id varchar(40)
 );
@@ -20,7 +20,7 @@ DROP TABLE IF EXISTS powertracks.races;
 CREATE TABLE powertracks.races
 (
     race_id varchar(40) PRIMARY KEY,      -- GUID
-    regatta_id varchar(50),               -- just the name
+    regatta_id varchar(100),               -- just the name
     race_name varchar(50),                -- e.g. R4 (49ER)
     race_short_name varchar(50),          -- e.g. R4
     fleet varchar(20),
@@ -47,9 +47,9 @@ DROP TABLE IF EXISTS powertracks.competitors;
 CREATE TABLE powertracks.competitors
 (
     comp_id varchar(40) PRIMARY KEY,       -- GUID
-    comp_name varchar(100),
+    comp_name varchar(200),
     nationality varchar(3),
-    regatta_id varchar(50),
+    regatta_id varchar(100),
     sail_id varchar(10),
     speed_kts_avg decimal(10,2),
     speed_kts_upwind_avg decimal(10,2),

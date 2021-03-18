@@ -24,9 +24,10 @@ class MarksUploader:
                 list_positions_to_upload.append((mark_id, pos_record['timepoint-ms'],\
                     race_id, pos_record['lat-deg'], pos_record['lng-deg']))
             
-            query = "INSERT INTO powertracks.marks_positions VALUES (?,?,?,?,?)"
-            cursor.executemany(query, list_positions_to_upload)
-            cursor.commit()          
+            if len(list_positions_to_upload) > 0 : 
+                query = "INSERT INTO powertracks.marks_positions VALUES (?,?,?,?,?)"
+                cursor.executemany(query, list_positions_to_upload)
+                cursor.commit()          
 
         query = "INSERT INTO powertracks.marks VALUES (?,?,?)"
         cursor.executemany(query, list_to_upload)

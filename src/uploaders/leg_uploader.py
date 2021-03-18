@@ -55,7 +55,7 @@ class LegUploader:
 
                 comp_leg_list_to_upload.append((comp_leg_id, leg_id, comp_id, dist, avg_sog, \
                     comp_record['tacks'], comp_record['jibes'], comp_record['penaltyCircles'], comp_record['rank'], \
-                    max(0,comp_record['gapToLeader-s']), comp_record['gapToLeader-m'], \
+                    min(10000, max(0,comp_record['gapToLeader-s'])), comp_record['gapToLeader-m'], \
                     comp_record['started'], comp_record['finished']))
 
             fromWaypointIdSet.add(fromWaypointId)
@@ -112,9 +112,6 @@ class LegUploader:
         rows = cursor.execute(query, (comp_id, race_id)).fetchall()
         rows.sort()  # Sort based on start_ms. 
 
-        if len(rows) == 0 : 
-            print(rows)
-
         return rows
 
     def upload_positions(self, json_path, race_id, conn, cursor) :
@@ -127,7 +124,7 @@ class LegUploader:
             comp_leg_lookup = self.__create_comp_leg_lookup_list(race_id, comp_id, conn, cursor)
             
             list_to_upload = []
-            track_list = [ rec for idx, rec in enumerate(comp_record['track']) if idx % 10 == 0 ]
+            track_list = [ rec for idx, rec in enumerate(comp_record['track']) if idx % 60 == 0 ]
             for track_record in track_list : 
                 ms = track_record['timepoint-ms']
                 try : 

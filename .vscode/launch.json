@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "src/main.py",
-            "args": ["C:\\data\\powertracks\\hwcs2020-round1"],
+            "args": ["C:\\data\\powertracks\\tokyo2019"],
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}"
         }
