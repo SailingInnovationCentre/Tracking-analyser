@@ -124,8 +124,10 @@ class LegUploader:
             comp_leg_lookup = self.__create_comp_leg_lookup_list(race_id, comp_id, conn, cursor)
             
             list_to_upload = []
-            track_list = [ rec for idx, rec in enumerate(comp_record['track']) if idx % 60 == 0 ]
-            for track_record in track_list : 
+            pruned_list_to_upload = []
+            i = 0
+
+            for track_record in comp_record['track'] : 
                 ms = track_record['timepoint-ms']
                 try : 
                     comp_leg_id = next(x[2] for x in comp_leg_lookup if ms > x[0] and ms < x[1])
@@ -133,16 +135,24 @@ class LegUploader:
                     # Outside scope of any leg. 
                     continue
 
-                list_to_upload.append((comp_leg_id, ms, track_record['lat-deg'], track_record['lng-deg'], \
-                    track_record['truebearing-deg'], track_record['speed-kts']))
+                tuple_to_append = (comp_leg_id, ms, track_record['lat-deg'], track_record['lng-deg'], \
+                    track_record['truebearing-deg'], track_record['speed-kts'])
+                list_to_upload.append(tuple_to_append)
+
+                if i % 10 == 0 :
+                    pruned_list_to_upload.append(tuple_to_append)
+                i+=1
 
             if len(list_to_upload) > 0 : 
                 query = "INSERT INTO powertracks.positions(comp_leg_id, timepoint_ms, lat_deg, lng_deg, \
                     true_bearing_deg, speed_kts) VALUES (?,?,?,?,?,?)"
                 cursor.executemany(query, list_to_upload)
                 cursor.commit()
+
+                query = "INSERT INTO powertracks.pruned_positions(comp_leg_id, timepoint_ms, lat_deg, lng_deg, \
+                    true_bearing_deg, speed_kts) VALUES (?,?,?,?,?,?)"
+                cursor.executemany(query, pruned_list_to_upload)
+                cursor.commit()
+
             else : 
                 print(f"WARNING: No positions in legs found for competitor {comp_id} in race {race_id}")
-
-
-  

@@ -160,6 +160,21 @@ CREATE TABLE powertracks.positions
     relative_speed_kts decimal(9,3)
 );
 
+DROP TABLE IF EXISTS powertracks.pruned_positions; 
+
+CREATE TABLE powertracks.pruned_positions
+(
+    comp_leg_id varchar(40), 
+    timepoint_ms bigint,
+    lat_deg decimal(9,6),
+    lng_deg decimal(9,6),
+    true_bearing_deg decimal(19,10),
+    speed_kts decimal(9,3),
+    calculated_wind_speed decimal(9,2),
+    calculated_wind_direction decimal(9,2),
+    relative_speed_kts decimal(9,3)
+);
+
 
 -- WIND
 

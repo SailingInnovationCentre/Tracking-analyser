@@ -16,7 +16,7 @@ def main():
     root_path = extract_parameters()
 
     conn, cursor = create_connection()
-    truncate_tables(conn, cursor)
+    #truncate_tables(conn, cursor)
 
     upload_regattas_overview(root_path, conn, cursor)
 
