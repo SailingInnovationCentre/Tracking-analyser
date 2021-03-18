@@ -1,0 +1,1 @@
+-- Use main.py to upload all data from JSONs to the database. 
