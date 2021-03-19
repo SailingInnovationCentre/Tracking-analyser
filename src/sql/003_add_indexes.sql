@@ -25,5 +25,8 @@ CREATE NONCLUSTERED INDEX comp_leg_nci_comp_idx
 ON powertracks.comp_leg(comp_id);
 
 CREATE NONCLUSTERED INDEX positions_ci_idx
+ON powertracks.positions(comp_leg_id, timepoint_ms);
+
+CREATE NONCLUSTERED INDEX pruned_positions_ci_idx
 ON powertracks.pruned_positions(comp_leg_id, timepoint_ms);
 
