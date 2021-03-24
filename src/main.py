@@ -2,6 +2,7 @@ import pyodbc
 import json
 import sys
 import os
+import math
 
 from uploaders.regatta_uploader import RegattaUploader
 from uploaders.race_uploader import RaceUploader
@@ -138,5 +139,29 @@ def find_wind_file(race_dir) :
         raise Exception("Too many possible wind files.")
     return os.path.join(race_dir, l[0])
 
+def distance_point_line(x0, y0, x1, y1, x2, y2) :
+    # (x0, y0) is the point, the line is defined by (x1, y1) -> (x2, y2)
+    
+    numerator = (x2 - x1) * (y1 - y0) - (x1 - x0) * (y2 - y1)
+    print(f"Numerator: {numerator}")
+    denominator = ( math.pow((x2-x1), 2) + math.pow((y2-y1), 2)) / 2.0
+    print(f"Denominator: {denominator}")
+    distance = numerator / denominator
+    return distance
+    print(f"Distance: {distance}")
+    relative_distance = distance / 25
+    return relative_distance
+
 if __name__ == "__main__":
-    main()
+    #main()
+
+    x1 = 35.301074
+    y1 = 139.503617
+
+    x2 = 35.295528
+    y2 = 139.491287
+
+    x0 = 35.300643
+    y0 = 139.499135
+
+    print(distance_point_line(x0,y0,x1,y1,x2,y2))
