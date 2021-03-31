@@ -232,12 +232,13 @@ CREATE TABLE powertracks.course_areas (
 
 INSERT INTO powertracks.course_areas(id, course_area, lat_deg, lng_deg)
 VALUES 
-    (1, 'Enoshima', 35.1756, 139.2951),
-    (2, 'Fujisawa',35.1583, 139.2920),
-    (3, 'Kamakura', 35.1744, 139.3079),
-    (4, 'Sagami', 35.1513, 139.3103),
-    (5, 'Zushi', 35.1621, 139.3239),
-    (6, 'Hayama', 35.1441, 139.3285);
+    (1, 'Enoshima', 35.2927, 139.4918),
+    (2, 'Fujisawa', 35.2638, 139.4867),
+    (3, 'Kamakura', 35.2907, 139.5132),
+    (4, 'Sagami',   35.2522, 139.5172),
+    (5, 'Zushi',    35.2702, 139.5398),
+    (6, 'Hayama',   35.2402, 139.5475);
+
 
 
 -- SAILING STYLE

@@ -91,3 +91,38 @@ inner join
      100 * (rank() over (partition by leg_id order by distance_traveled_m) - 1.0) /
            (count(*) over (partition by leg_id) - 1.0) distance_traveled_rel_rank
      from powertracks.comp_leg) sub on cl.comp_leg_id = sub.comp_leg_id; 
+
+-- Data quality
+select l.leg_id, rank, rel_rank, avg_side_rel_rank, average_sog_rel_rank, distance_traveled_rel_rank
+from powertracks.comp_leg cl
+inner join powertracks.legs l on cl.leg_id = l.leg_id
+order by l.leg_id, rank, rel_rank
+
+
+-- Step 3: Add race centroids
+update r
+set r.centroid_lat = sub.centroid_lat, 
+    r.centroid_lng = sub.centroid_lng
+from powertracks.races r
+inner join (
+    select r.race_id, 
+           0.5 * (avg(l.start_lat) + avg(l.end_lat)) centroid_lat, 
+           0.5 * (avg(l.start_lng) + avg(l.end_lng)) centroid_lng
+    from powertracks.races r 
+    inner join powertracks.legs l on r.race_id = l.race_id
+    group by r.race_id
+) sub on r.race_id = sub.race_id;
+
+
+-- Step 4: Assign course area to races based on proximity of race centroid to course area centroid. 
+update r
+set r.course_area_id = sub.id
+from powertracks.races r
+inner join (
+    select r.race_id, ca.id, ca.course_area, 
+        sqrt(power(ca.lat_deg - r.centroid_lat, 2) + power(ca.lng_deg - r.centroid_lng, 2)) dist,
+        rank() over (partition by r.race_id order by sqrt(power(ca.lat_deg - r.centroid_lat, 2) + power(ca.lng_deg - r.centroid_lng, 2))) dist_rank
+    from powertracks.races r, powertracks.course_areas ca) sub on r.race_id = sub.race_id
+where sub.dist_rank = 1
+    
+
