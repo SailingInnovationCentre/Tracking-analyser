@@ -1,3 +1,9 @@
+-- Remove useless data. 
+
+delete from powertracks.comp_leg
+where started = 0 or finished = 0; 
+
+
 -- Adding indexes after adding the data results in improved efficiency for both uploading and querrying. 
 
 CREATE NONCLUSTERED INDEX races_nci_idx

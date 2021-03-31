@@ -108,7 +108,7 @@ CREATE TABLE powertracks.legs
     pos_startline_rel decimal(9,3),
     cor_side_pos_startline_abs decimal(9,3),
     cor_side_pos_startline_rel decimal(9,3),
-    avg_spd decimal(5,3),
+    avg_spd decimal(9,3),
     avg_distance_traveled_m decimal (9,2)
 );
 
@@ -134,12 +134,15 @@ CREATE TABLE powertracks.comp_leg
     gap_to_leader_m decimal(9,2),
     started bit,
     finished bit,
+    rel_rank decimal(9,2), 
     avg_side decimal(9,2),
-    most_left decimal(9,2),
-    most_right decimal(9,2),
-    rel_rank decimal(9,2),
-    rel_average_sog decimal (9,3), 
-    rel_distance_traveled decimal(9,3)
+    most_left_side decimal(9,2),
+    most_right_side decimal(9,2),
+    avg_side_rel_rank decimal(9,2), 
+    average_sog_rel_rank decimal(9,2), 
+    distance_traveled_rel_rank decimal(9,2),
+    average_sog_ratio_to_mean decimal(9,2),
+    average_distance_ratio_to_mean decimal(9,2)
 );
 
 
