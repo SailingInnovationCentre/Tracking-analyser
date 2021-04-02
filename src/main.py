@@ -142,5 +142,79 @@ def find_wind_file(race_dir) :
         raise Exception("Too many possible wind files.")
     return os.path.join(race_dir, l[0])
 
+
+
+def compute_rel_distance_startline(l1x, l1y, l2x, l2y, px, py) : 
+    #print("\n")
+    
+    r = math.sqrt( math.pow(l2x-l1x,2) + math.pow(l2y-l1y,2) )
+    theta = - math.atan( (l2x - l1x) / (l2y - l1y) )
+    #print(f"Theta: {theta}")
+    
+    
+    translated_px = px - l1x
+    translated_py = py - l1y
+    #print(f"Translated: ({translated_px},{translated_py})")
+    
+    rotated_px =  translated_px * math.cos(theta) + translated_py * math.sin(theta)
+    rotated_py = -translated_px * math.sin(theta) + translated_py * math.cos(theta)
+    #print(f"Rotated: ({rotated_px}, {rotated_py})")
+    
+    scaled_px = rotated_px / r
+    scaled_py = rotated_py / r
+    #print(f"Scaled: ({scaled_px}, {scaled_py})")
+    
+    if l2y < l1y : 
+        ret = -scaled_py
+    else :
+        ret = scaled_py
+
+    return ret
+
+def test_rel_pos_startline() : 
+    l1x = 0
+    l1y = 0
+    l2x = 200
+    l2y = 100
+
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, -100, -50))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, 0, 0))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, 50, 25))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, 300, 150))
+    print()
+
+    l1x = 0
+    l1y = 0
+    l2x = -200
+    l2y = 100
+
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, 100, -50))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, 0, 0))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, -50, 25))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, -300, 150))
+    print()
+
+    l1x = 0
+    l1y = 0
+    l2x = -200
+    l2y = -100
+
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, 100, 50))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, 0, 0))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, -50, -25))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, -300, -150))
+    print()
+
+    l1x = 0
+    l1y = 0
+    l2x = 200
+    l2y = -100
+
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, -100, 50))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, 0, 0))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, 50, -25))
+    print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, 300, -150))
+
 if __name__ == "__main__":
-    main()
+    test_rel_pos_startline()
+    #main()

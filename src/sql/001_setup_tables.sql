@@ -115,7 +115,8 @@ CREATE TABLE powertracks.legs
     cor_side_pos_startline_abs decimal(9,3),
     cor_side_pos_startline_rel decimal(9,3),
     avg_spd decimal(9,3),
-    avg_distance_traveled_m decimal (9,2)
+    avg_distance_traveled_m decimal (9,2),
+    
 );
 
 

@@ -141,3 +141,11 @@ select r.regatta_id, r.race_name, r.race_id, r.start_of_race_ms, r.startline_pin
 from powertracks.races r
 where r.startline_pin_lat is null
 
+
+-- Step 6: Calculate relative start positions?? 
+
+
+
+-- Step 7: Compute average wind stats per leg. 
+
+
