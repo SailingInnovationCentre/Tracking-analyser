@@ -126,3 +126,18 @@ inner join (
 where sub.dist_rank = 1
     
 
+-- Step 5: Calculate position of startline. 
+update r
+set r.startline_pin_lat = sub.start_lat, r.startline_pin_lng = sub.start_lng
+from powertracks.races r 
+inner join (
+    select r.race_id, avg(mp.lat_deg) start_lat, avg(mp.lng_deg) start_lng
+    from powertracks.races r
+    inner join powertracks.marks_positions mp on r.startline_pin_id = mp.mark_id and abs(r.start_of_race_ms - mp.timepoint_ms) < 660000  -- 11 minutes: 5 before and 5 after start of race
+    group by r.regatta_id, r.race_id, r.race_name, r.start_of_race_ms) sub on r.race_id = sub.race_id
+
+-- Data quality
+select r.regatta_id, r.race_name, r.race_id, r.start_of_race_ms, r.startline_pin_lat, r.startline_pin_lng
+from powertracks.races r
+where r.startline_pin_lat is null
+
