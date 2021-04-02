@@ -1,13 +1,15 @@
 import json
+from numpy import mean
 
 class MarksUploader:    
 
     def __init__ (self) : 
         pass
 
-    def upload(self, json_path, race_id, conn, cursor) : 
-        print(json_path)
-        with open(json_path) as json_file_object : 
+    def upload(self, marks_json_path, race_id, conn, cursor) : 
+        
+        print(marks_json_path)
+        with open(marks_json_path) as json_file_object : 
             json_object = json.load(json_file_object)
     
         list_to_upload = []
@@ -23,11 +25,11 @@ class MarksUploader:
             for pos_record in track_list : 
                 list_positions_to_upload.append((mark_id, pos_record['timepoint-ms'],\
                     race_id, pos_record['lat-deg'], pos_record['lng-deg']))
-            
+
             if len(list_positions_to_upload) > 0 : 
                 query = "INSERT INTO powertracks.marks_positions VALUES (?,?,?,?,?)"
                 cursor.executemany(query, list_positions_to_upload)
-                cursor.commit()          
+                cursor.commit()
 
         query = "INSERT INTO powertracks.marks VALUES (?,?,?)"
         cursor.executemany(query, list_to_upload)

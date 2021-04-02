@@ -100,3 +100,17 @@ class RaceUploader:
         query = "UPDATE powertracks.races set start_of_race_ms = ?, end_of_race_ms = ? WHERE race_id = ?"
         cursor.execute(query, (start_ms, end_ms, race_id))
         cursor.commit()
+
+    def upload_course(self, json_path, race_id, conn, cursor) : 
+        print(json_path)
+        with open(json_path) as json_file_object : 
+            json_object = json.load(json_file_object)
+
+        first_waypoint = json_object['waypoints'][0]['controlPoint']
+        startline_rc_id = first_waypoint['left']['id']
+        startline_pin_id = first_waypoint['right']['id']
+
+        query = "UPDATE powertracks.races set startline_rc_id = ?, startline_pin_id = ? WHERE race_id = ?"
+        cursor.execute(query, (startline_rc_id, startline_pin_id, race_id))
+        cursor.commit()
+

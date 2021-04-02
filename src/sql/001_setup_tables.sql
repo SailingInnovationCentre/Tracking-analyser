@@ -20,7 +20,7 @@ DROP TABLE IF EXISTS powertracks.races;
 CREATE TABLE powertracks.races
 (
     race_id varchar(40) PRIMARY KEY,      -- GUID
-    regatta_id varchar(100),               -- just the name
+    regatta_id varchar(100),              -- just the name
     race_name varchar(50),                -- e.g. R4 (49ER)
     race_short_name varchar(50),          -- e.g. R4
     fleet varchar(20),
@@ -32,6 +32,12 @@ CREATE TABLE powertracks.races
     nr_competitors int,
     start_of_race_ms bigint,
     end_of_race_ms bigint,
+    startline_rc_id varchar(40), 
+    startline_rc_lat decimal(9,5), 
+    startline_rc_lng decimal(9,5), 
+    startline_pin_id varchar(40), 
+    startline_pin_lat decimal(9,5), 
+    startline_pin_lng decimal(9,5),
     start_wind_dir decimal(10,2),
     stl_bearing decimal(10,2),
     stl_bearing_diff_wind decimal(10,2),
