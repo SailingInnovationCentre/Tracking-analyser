@@ -144,8 +144,36 @@ where r.startline_pin_lat is null
 
 -- Step 6: Calculate relative start positions?? 
 
+IF OBJECT_ID(N'powertracks.FindOrthPosOnLine', N'FN') IS NOT NULL 
+    DROP FUNCTION powertracks.FindOrthPosOnLine ;
+GO
+
+CREATE FUNCTION powertracks.FindOrthPosOnLine(@l1x decimal(9,5), @l1y decimal(9,5), @l2x decimal(9,5), @l2y decimal(9,5), @px decimal(9,5), @py decimal(9,5))
+  RETURNS DECIMAL(9,3)
+  AS
+  BEGIN
+    DECLARE @r as DECIMAL(9,5); 
+    DECLARE @theta as DECIMAL(9,5); 
+    DECLARE @translated_px as DECIMAL(9,5); 
+    DECLARE @translated_py as DECIMAL(9,5); 
+    DECLARE @rotated_py AS DECIMAL(9,3); 
+
+    SET @r = sqrt( power(@l2x-@l1x, 2) + power(@l2y-@l1y, 2) );
+    SET @theta = -atan( (@l2x - @l1x) / ( @l2y - @l1y) );
+
+    SET @translated_px = @px - @l1x; 
+    SET @translated_py = @py - @l1y; 
+
+    SET @rotated_py = (-@translated_px * sin(@theta) + @translated_py * cos(@theta)) / @r; 
+
+    IF @l2y < @l1y
+      SET @rotated_py= - @rotated_py;
+    
+    RETURN @rotated_py; 
+    
+  END;
 
 
--- Step 7: Compute average wind stats per leg. 
+
 
 
