@@ -153,39 +153,6 @@ where r.startline_pin_lat is null or r.startline_rc_lat is null;
 
 
 -- Step 6: Calculate relative start positions
--- Source for calculations: https://en.wikipedia.org/wiki/Rotation_of_axes
--- Basic idea: rotate the startline to a vertical line, and use the same rotation on the boats' coordinates. 
--- The y coordinate is then the relative start position (between 0 and 1). 
-
-IF OBJECT_ID(N'powertracks.FindOrthPosOnLine', N'FN') IS NOT NULL 
-    DROP FUNCTION powertracks.FindOrthPosOnLine ;
-GO
-
-CREATE FUNCTION powertracks.FindOrthPosOnLine(@l1x decimal(9,5), @l1y decimal(9,5), @l2x decimal(9,5), @l2y decimal(9,5), @px decimal(9,5), @py decimal(9,5))
-  RETURNS DECIMAL(9,3)
-  AS
-  BEGIN
-    DECLARE @r as DECIMAL(9,5); 
-    DECLARE @theta as DECIMAL(9,5); 
-    DECLARE @translated_px as DECIMAL(9,5); 
-    DECLARE @translated_py as DECIMAL(9,5); 
-    DECLARE @rotated_py AS DECIMAL(9,3); 
-
-    SET @r = sqrt( power(@l2x-@l1x, 2) + power(@l2y-@l1y, 2) );
-    SET @theta = -atan( (@l2x - @l1x) / ( @l2y - @l1y) );
-
-    SET @translated_px = @px - @l1x; 
-    SET @translated_py = @py - @l1y; 
-
-    SET @rotated_py = (-@translated_px * sin(@theta) + @translated_py * cos(@theta)) / @r; 
-
-    IF @l2y < @l1y
-      SET @rotated_py= - @rotated_py;
-    
-    RETURN 1 - @rotated_py; 
-    
-  END;
-
 
 -- Find start position for each first leg, for each competitor. 
 update rc 
@@ -213,5 +180,13 @@ inner join (
     inner join powertracks.race_comp rc on rc.race_id = r.race_id
 ) as sub on rc.race_id = sub.race_id and rc.comp_id = sub.comp_id
 
-
 -- Find relative rank of start position (scaled from 0 to 100). 
+update rc 
+set start_pos_rel_rank = sub.sprl 
+from powertracks.race_comp rc inner join (
+    select rc.race_id, rc.comp_id, start_pos_rel,  
+    100.0 * (rank() over (partition by rc.race_id order by start_pos_rel) - 1.0) /
+            (count(*) over (partition by rc.race_id) - 1.0) sprl 
+    from powertracks.race_comp rc 
+    where start_pos_rel is not null
+) sub on rc.race_id = sub.race_id and rc.comp_id = sub.comp_id;
