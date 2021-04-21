@@ -182,7 +182,7 @@ CREATE FUNCTION powertracks.FindOrthPosOnLine(@l1x decimal(9,5), @l1y decimal(9,
     IF @l2y < @l1y
       SET @rotated_py= - @rotated_py;
     
-    RETURN @rotated_py; 
+    RETURN 1 - @rotated_py; 
     
   END;
 
@@ -202,7 +202,16 @@ inner join (
 ) sub on rc.race_id = sub.race_id and rc.comp_id = sub.comp_id
 
 -- Find relative start position on the start line. 0 -> left side; 100 -> right side. 
-
+update rc
+set start_pos_rel = sub.start_pos_rel
+from powertracks.race_comp rc
+inner join (
+    select rc.race_id, rc.comp_id,
+        powertracks.FindOrthPosOnLine(startline_rc_lat, startline_rc_lng, startline_pin_lat, startline_pin_lng, 
+                                    rc.start_pos_lat, rc.start_pos_lng) start_pos_rel
+    from powertracks.races r 
+    inner join powertracks.race_comp rc on rc.race_id = r.race_id
+) as sub on rc.race_id = sub.race_id and rc.comp_id = sub.comp_id
 
 
 -- Find relative rank of start position (scaled from 0 to 100). 
