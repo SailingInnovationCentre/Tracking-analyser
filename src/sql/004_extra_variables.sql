@@ -190,3 +190,24 @@ from powertracks.race_comp rc inner join (
     from powertracks.race_comp rc 
     where start_pos_rel is not null
 ) sub on rc.race_id = sub.race_id and rc.comp_id = sub.comp_id;
+
+
+-- Step 7: Calculate the 'real' wind direction from the wind data. 
+update r
+set start_wind_dir = sub.start_wind_dir
+from powertracks.races r
+inner join 
+(
+    select r2.race_id, avg(true_bearing_deg) start_wind_dir
+    from powertracks.races r2
+    inner join powertracks.wind w on r2.race_id = w.race_id 
+    where w.timepoint_ms between r2.start_of_race_ms and r2.start_of_race_ms + 20000
+    group by r2.race_id 
+) sub on r.race_id = sub.race_id;
+
+-- Data quality
+select count(*)
+from powertracks.races
+where start_wind_dir is null; 
+
+

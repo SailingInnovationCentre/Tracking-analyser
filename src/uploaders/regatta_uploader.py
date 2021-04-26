@@ -12,7 +12,8 @@ class RegattaUploader:
     
         list_to_upload = []
         for record in json_object : 
-            list_to_upload.append((record['name'], record['boatclass'], record['courseAreaId']))
+            if record['boatclass'] in ('470', '49er', '49erFX', 'Finn', 'Laser Int.', 'Laser Radial', 'Nacra 17 Foiling', 'RS:X') : 
+                list_to_upload.append((record['name'], record['boatclass'], record['courseAreaId']))
 
         query = "INSERT INTO powertracks.regattas VALUES (?,?,?)"
         cursor.executemany(query, list_to_upload)
