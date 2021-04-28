@@ -1,4 +1,14 @@
--- Find for each leg its start and end point, based on the positions of the boats, when their leg starts/ends. 
+-- Step 0: Easy updates in races table. 
+
+update powertracks.races 
+set first_leg_bearing_deg_int = round(first_leg_bearing_deg, 0);
+
+update powertracks.races 
+set start_of_race_dt = DATEADD(MILLISECOND, start_of_race_ms  % 1000, DATEADD(SECOND, start_of_race_ms / 1000, '19700101'));
+
+
+
+-- Step 1: Find for each leg its start and end point, based on the positions of the boats, when their leg starts/ends. 
 
 alter table powertracks.legs add
 start_lat decimal(9,6),
