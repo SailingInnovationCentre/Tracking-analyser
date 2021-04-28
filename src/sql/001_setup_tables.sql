@@ -29,7 +29,6 @@ CREATE TABLE powertracks.races
     avg_wind_dir_deg decimal(10,2), 
     first_leg_bearing_deg decimal(10,2),
     course_area_id int,
-    nr_competitors int,
     start_of_race_ms bigint,
     end_of_race_ms bigint,
     startline_rc_id varchar(40), 
@@ -38,11 +37,9 @@ CREATE TABLE powertracks.races
     startline_pin_id varchar(40), 
     startline_pin_lat decimal(9,5), 
     startline_pin_lng decimal(9,5),
-    start_wind_dir decimal(10,2),
-    stl_bearing decimal(10,2),
-    stl_bearing_diff_wind decimal(10,2),
-    stl_fav_side varchar(10),
-    sail_style_id int
+    startline_angle int, 
+    startwind_angle int,
+    startline_startwind_angle_diff int
 );
 
 

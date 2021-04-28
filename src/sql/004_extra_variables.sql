@@ -40,6 +40,13 @@ inner join powertracks.legs l2 on l1.race_id = l2.race_id and l1.leg_nr + 1 = l2
 where abs(l2.start_lat - l1.end_lat) > 0.0005 or abs(l2.start_lng - l1.end_lng) > 0.0005
 
 
+-- Later in this file, we will be calculating distances. We cannot assume that a certain difference in latitude 
+-- equates the same difference in longitude. Therefore, we need to scale this. Taking the average position of 
+-- (35.273, 139.512), moving in latitude by 0.01 degrees yields a distance of 1.112, whereas moving 0.01 degrees 
+-- in longitude yields a distance of 0.908. Therefore, all latitude distances need to be multiplied by a 
+-- factor of 1.112 / 0.908 = 1.225.
+-- Source: https://latlongdata.com/distance-calculator/
+
 -- Compute a few statistics on comp_leg level, regarding rank, side, average speed, and traveled distance. 
 -- Step 1: Compute side. This query uses the positions table. 
 -- Basic formula is: https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line , normalized by length of leg. 
@@ -50,14 +57,14 @@ from powertracks.comp_leg cl
 inner join 
     (select p.comp_leg_id, 
         100 * avg(
-        ( (l.end_lat - l.start_lat) * (l.start_lng - p.lng_deg) - (l.start_lat - p.lat_deg) * (l.end_lng - l.start_lng) ) /
-        ( (power(l.end_lat - l.start_lat, 2) + power(l.end_lng - l.start_lng, 2)) / 2.0E0 )) avg_side,
+        ( 1.225 * (l.end_lat - l.start_lat) * (l.start_lng - p.lng_deg) - 1.225 * (l.start_lat - p.lat_deg) * (l.end_lng - l.start_lng) ) /
+        ( (power(1.225 * (l.end_lat - l.start_lat), 2) + power(l.end_lng - l.start_lng, 2)) / 2.0E0 )) avg_side,
         100 * min(
-        ( (l.end_lat - l.start_lat) * (l.start_lng - p.lng_deg) - (l.start_lat - p.lat_deg) * (l.end_lng - l.start_lng) ) /
-        ( (power(l.end_lat - l.start_lat, 2) + power(l.end_lng - l.start_lng, 2)) / 2.0E0 )) most_left,
+        ( 1.225 * (l.end_lat - l.start_lat) * (l.start_lng - p.lng_deg) - 1.225 * (l.start_lat - p.lat_deg) * (l.end_lng - l.start_lng) ) /
+        ( (power(1.225 * (l.end_lat - l.start_lat), 2) + power(l.end_lng - l.start_lng, 2)) / 2.0E0 )) most_left,
         100 * max(
-        ( (l.end_lat - l.start_lat) * (l.start_lng - p.lng_deg) - (l.start_lat - p.lat_deg) * (l.end_lng - l.start_lng) ) /
-        ( (power(l.end_lat - l.start_lat, 2) + power(l.end_lng - l.start_lng, 2)) / 2.0E0 )) most_right
+        ( 1.225 * (l.end_lat - l.start_lat) * (l.start_lng - p.lng_deg) - 1.225 * (l.start_lat - p.lat_deg) * (l.end_lng - l.start_lng) ) /
+        ( (power(1.225 * (l.end_lat - l.start_lat), 2) + power(l.end_lng - l.start_lng, 2)) / 2.0E0 )) most_right
     from powertracks.positions p
     inner join powertracks.comp_leg cl on p.comp_leg_id = cl.comp_leg_id
     inner join powertracks.legs l on cl.leg_id = l.leg_id
@@ -194,11 +201,11 @@ from powertracks.race_comp rc inner join (
 
 -- Step 7: Calculate the 'real' wind direction from the wind data. 
 update r
-set start_wind_dir = sub.start_wind_dir
+set startwind_angle = sub.startwind_angle
 from powertracks.races r
 inner join 
 (
-    select r2.race_id, avg(true_bearing_deg) start_wind_dir
+    select r2.race_id, avg(true_bearing_deg) startwind_angle
     from powertracks.races r2
     inner join powertracks.wind w on r2.race_id = w.race_id 
     where w.timepoint_ms between r2.start_of_race_ms and r2.start_of_race_ms + 20000
@@ -208,6 +215,28 @@ inner join
 -- Data quality
 select count(*)
 from powertracks.races
-where start_wind_dir is null; 
+where startwind_angle is null; 
 
 
+
+-- Step 8: Calculate angle of startline. 
+update r
+set startline_angle = sub.startline_angle
+from powertracks.races r 
+inner join (
+    select race_id, 
+           round(180 / PI() * iif (abs(startline_pin_lat - startline_rc_lat) = 0.0, 0.5 * PI(), 
+            atan( (startline_pin_lng - startline_rc_lng) / 
+                  (1.125 * (startline_pin_lat - startline_rc_lat)))), 0) startline_angle
+    from powertracks.races r2
+) sub on r.race_id = sub.race_id;
+
+-- Step 9: Compute difference between actual wind direction at start and expected wind direction based on startline. 
+update powertracks.races 
+set startline_startwind_angle_diff = (startline_angle + 270) % 180 - startwind_angle % 180);
+
+-- Data quality 
+select startline_startwind_angle_diff, count(*) 
+from powertracks.races
+group by startline_startwind_angle_diff
+order by startline_startwind_angle_diff
