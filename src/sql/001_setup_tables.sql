@@ -29,7 +29,6 @@ CREATE TABLE powertracks.races
     avg_wind_dir_deg decimal(10,2), 
     first_leg_bearing_deg decimal(10,2),
     course_area_id int,
-    nr_competitors int,
     start_of_race_ms bigint,
     end_of_race_ms bigint,
     startline_rc_id varchar(40), 
@@ -38,11 +37,9 @@ CREATE TABLE powertracks.races
     startline_pin_id varchar(40), 
     startline_pin_lat decimal(9,5), 
     startline_pin_lng decimal(9,5),
-    start_wind_dir decimal(10,2),
-    stl_bearing decimal(10,2),
-    stl_bearing_diff_wind decimal(10,2),
-    stl_fav_side varchar(10),
-    sail_style_id int
+    startline_angle int, 
+    startwind_angle int,
+    startline_startwind_angle_diff int
 );
 
 
@@ -247,9 +244,21 @@ VALUES
     (5, 'Zushi',    35.2702, 139.5398),
     (6, 'Hayama',   35.2402, 139.5475);
 
+-- Two auxiliary tables for PowerBI visualisation
+CREATE TABLE powertracks.rank_filter
+(
+    id int primary key
+);
+
+CREATE TABLE powertracks.degree_selection
+(
+    angle_degrees int primary key, 
+    angle_degrees_norm int,
+);
 
 
--- SAILING STYLE
+
+-- SAILING STYLE (niet nodig?)
 
 DROP TABLE IF EXISTS powertracks.sailing_style;
 
@@ -276,30 +285,3 @@ VALUES
     (5, 'Random', 0,0, 0, 0, 0, 0, 0, 0);
 
 
-
-
-
-
-
--- niet nodig? 
-DROP TABLE IF EXISTS powertracks.courses; 
-
-CREATE TABLE powertracks.courses (
-    race_id binary(16),
-    name varchar(50),
-    passingInstruction varchar(50),
-    [controlPoint.@class] varchar(50),
-    [controlPoint.name] varchar(50),
-    [controlPoint.id] binary(16),
-    [controlPoint.left.@class]varchar(50),
-    [controlPoint.left.name] varchar(50),
-    [controlPoint.left.id] binary(16),
-    [controlPoint.left.type] varchar(50),
-    [controlPoint.right.@class]varchar(50),
-    [controlPoint.right.name] varchar(50),
-    [controlPoint.right.id] binary(16),
-    [controlPoint.right.type] varchar(50),
-    [controlPoint.type] varchar(50),
-    mark_nr int,
-    mark_nr_from_finish int
-);

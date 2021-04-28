@@ -11,13 +11,24 @@ from uploaders.wind_uploader import WindUploader
 from uploaders.leg_uploader import LegUploader
 from uploaders.live_uploader import LiveUploader
 from uploaders.marks_uploader import MarksUploader
+from uploaders.aux_uploader import AuxUploader
 
 def main():
 
     root_path = extract_parameters()
 
     conn, cursor = create_connection()
+
+    # Safety first! 
+    sys.exit(0) 
+
+
+    
     #truncate_tables(conn, cursor)
+
+    """
+    uploader = AuxUploader(conn, cursor)
+    uploader.start() 
 
     upload_regattas_overview(root_path, conn, cursor)
 
@@ -29,7 +40,8 @@ def main():
 
         upload_competitors(regatta_dir, conn, cursor)
         upload_regatta(regatta_dir, conn, cursor)
-    
+    """
+
     cursor.close()
     conn.close()
 
@@ -216,5 +228,4 @@ def test_rel_pos_startline() :
     print (compute_rel_distance_startline(l1x, l1y, l2x, l2y, 300, -150))
 
 if __name__ == "__main__":
-    test_rel_pos_startline()
-    #main()
+    main()
