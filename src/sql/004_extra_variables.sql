@@ -142,7 +142,8 @@ inner join (
     select r.race_id, avg(mp.lat_deg) start_lat, avg(mp.lng_deg) start_lng
     from powertracks.races r
     inner join powertracks.marks_positions mp on r.startline_pin_id = mp.mark_id and abs(r.start_of_race_ms - mp.timepoint_ms) < 660000  -- 11 minutes: 5 before and 5 after start of race
-    group by r.regatta_id, r.race_id, r.race_name, r.start_of_race_ms) sub on r.race_id = sub.race_id);
+    group by r.regatta_id, r.race_id, r.race_name, r.start_of_race_ms
+) sub on r.race_id = sub.race_id;
 
 update r
 set r.startline_rc_lat = sub.start_lat, r.startline_rc_lng = sub.start_lng
@@ -151,7 +152,8 @@ inner join (
     select r.race_id, avg(mp.lat_deg) start_lat, avg(mp.lng_deg) start_lng
     from powertracks.races r
     inner join powertracks.marks_positions mp on r.startline_rc_id = mp.mark_id and abs(r.start_of_race_ms - mp.timepoint_ms) < 660000  -- 11 minutes: 5 before and 5 after start of race
-    group by r.regatta_id, r.race_id, r.race_name, r.start_of_race_ms) sub on r.race_id = sub.race_id);
+    group by r.regatta_id, r.race_id, r.race_name, r.start_of_race_ms
+) sub on r.race_id = sub.race_id;
 
 -- Data quality
 select r.regatta_id, r.race_name, r.race_id, r.start_of_race_ms, r.startline_pin_lat, r.startline_pin_lng
@@ -233,7 +235,7 @@ inner join (
 
 -- Step 9: Compute difference between actual wind direction at start and expected wind direction based on startline. 
 update powertracks.races 
-set startline_startwind_angle_diff = (startline_angle + 270) % 180 - startwind_angle % 180);
+set startline_startwind_angle_diff = (startline_angle + 270) % 180 - (startwind_angle % 180);
 
 -- Data quality 
 select startline_startwind_angle_diff, count(*) 
