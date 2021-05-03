@@ -4,7 +4,7 @@ update powertracks.races
 set first_leg_bearing_deg_int = round(first_leg_bearing_deg, 0);
 
 update powertracks.races 
-set start_of_race_dt = DATEADD(MILLISECOND, start_of_race_ms  % 1000, DATEADD(SECOND, start_of_race_ms / 1000, '19700101'));
+set start_of_race_dt = DATEADD(HOUR, 9, DATEADD(MILLISECOND, start_of_race_ms  % 1000, DATEADD(SECOND, start_of_race_ms / 1000, '19700101')));
 
 update powertracks.races set visualize = 1; 
 
