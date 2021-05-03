@@ -226,6 +226,25 @@ inner join
     group by r2.race_id 
 ) sub on r.race_id = sub.race_id;
 
+-- In case the predominant wind direction is around 0 or 360 degress, the average will fail. This query will fix that (7 rows). 
+update r 
+set r.startwind_angle = sub.new_angle 
+from powertracks.races r 
+inner join 
+(
+    select r1.race_id, (avg( (180 + w.true_bearing_deg) % 360) + 180) % 360 new_angle
+    from powertracks.races r1
+    inner join powertracks.wind w on r1.race_id = w.race_id and w.timepoint_ms between r1.start_of_race_ms and r1.start_of_race_ms + 20000
+    inner join (
+        select r2.race_id
+        from powertracks.races r2
+        inner join powertracks.wind w1 on r2.race_id = w1.race_id and w1.timepoint_ms between r2.start_of_race_ms and r2.start_of_race_ms + 20000
+        group by r2.race_id
+        having max(true_bearing_deg) - min(true_bearing_deg) > 20
+    ) sub2 on r1.race_id = sub2.race_id
+    group by r1.race_id
+) sub on r.race_id = sub.race_id
+
 -- Data quality
 select count(*)
 from powertracks.races
