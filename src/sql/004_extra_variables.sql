@@ -4,9 +4,11 @@ update powertracks.races
 set first_leg_bearing_deg_int = round(first_leg_bearing_deg, 0);
 
 update powertracks.races 
-set start_of_race_dt = DATEADD(MILLISECOND, start_of_race_ms  % 1000, DATEADD(SECOND, start_of_race_ms / 1000, '19700101'));
+set start_of_race_dt = DATEADD(HOUR, 9, DATEADD(MILLISECOND, start_of_race_ms  % 1000, DATEADD(SECOND, start_of_race_ms / 1000, '19700101')));
 
+update powertracks.races set visualize = 1; 
 
+insert into powertracks.races(race_id, visualize) values ('dummy', 0); 
 
 -- Step 1: Find for each leg its start and end point, based on the positions of the boats, when their leg starts/ends. 
 
@@ -224,6 +226,25 @@ inner join
     group by r2.race_id 
 ) sub on r.race_id = sub.race_id;
 
+-- In case the predominant wind direction is around 0 or 360 degress, the average will fail. This query will fix that (7 rows). 
+update r 
+set r.startwind_angle = sub.new_angle 
+from powertracks.races r 
+inner join 
+(
+    select r1.race_id, (avg( (180 + w.true_bearing_deg) % 360) + 180) % 360 new_angle
+    from powertracks.races r1
+    inner join powertracks.wind w on r1.race_id = w.race_id and w.timepoint_ms between r1.start_of_race_ms and r1.start_of_race_ms + 20000
+    inner join (
+        select r2.race_id
+        from powertracks.races r2
+        inner join powertracks.wind w1 on r2.race_id = w1.race_id and w1.timepoint_ms between r2.start_of_race_ms and r2.start_of_race_ms + 20000
+        group by r2.race_id
+        having max(true_bearing_deg) - min(true_bearing_deg) > 20
+    ) sub2 on r1.race_id = sub2.race_id
+    group by r1.race_id
+) sub on r.race_id = sub.race_id
+
 -- Data quality
 select count(*)
 from powertracks.races
@@ -252,3 +273,23 @@ select startline_startwind_angle_diff, count(*)
 from powertracks.races
 group by startline_startwind_angle_diff
 order by startline_startwind_angle_diff
+
+
+-- Extra link necessary for power bi reporting. 
+alter table powertracks.race_comp 
+add race_comp_id INT IDENTITY(1,1); 
+
+alter table powertracks.comp_leg 
+add race_comp_id INT;
+
+update cl 
+set cl.race_comp_id = sub.race_comp_id 
+from powertracks.comp_leg cl
+inner join (
+    select cl.comp_leg_id, rc.race_comp_id
+    from powertracks.comp_leg cl 
+    inner join powertracks.legs l on cl.leg_id = l.leg_id
+    inner join powertracks.races r on r.race_id = l.race_id
+    inner join powertracks.race_comp rc on rc.race_id = r.race_id and cl.comp_id = rc.comp_id
+    group by cl.comp_leg_id, rc.race_comp_id
+) sub on cl.comp_leg_id = sub.comp_leg_id;

@@ -41,7 +41,8 @@ CREATE TABLE powertracks.races
     startline_pin_lng decimal(9,5),
     startline_angle int, 
     startwind_angle int,
-    startline_startwind_angle_diff int
+    startline_startwind_angle_diff int,
+    visualize bit
 );
 
 
