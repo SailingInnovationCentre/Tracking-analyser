@@ -6,7 +6,9 @@ set first_leg_bearing_deg_int = round(first_leg_bearing_deg, 0);
 update powertracks.races 
 set start_of_race_dt = DATEADD(MILLISECOND, start_of_race_ms  % 1000, DATEADD(SECOND, start_of_race_ms / 1000, '19700101'));
 
+update powertracks.races set visualize = 1; 
 
+insert into powertracks.races(race_id, visualize) values ('dummy', 0); 
 
 -- Step 1: Find for each leg its start and end point, based on the positions of the boats, when their leg starts/ends. 
 
