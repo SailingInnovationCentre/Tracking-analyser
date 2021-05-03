@@ -273,3 +273,23 @@ select startline_startwind_angle_diff, count(*)
 from powertracks.races
 group by startline_startwind_angle_diff
 order by startline_startwind_angle_diff
+
+
+-- Extra link necessary for power bi reporting. 
+alter table powertracks.race_comp 
+add race_comp_id INT IDENTITY(1,1); 
+
+alter table powertracks.comp_leg 
+add race_comp_id INT;
+
+update cl 
+set cl.race_comp_id = sub.race_comp_id 
+from powertracks.comp_leg cl
+inner join (
+    select cl.comp_leg_id, rc.race_comp_id
+    from powertracks.comp_leg cl 
+    inner join powertracks.legs l on cl.leg_id = l.leg_id
+    inner join powertracks.races r on r.race_id = l.race_id
+    inner join powertracks.race_comp rc on rc.race_id = r.race_id and cl.comp_id = rc.comp_id
+    group by cl.comp_leg_id, rc.race_comp_id
+) sub on cl.comp_leg_id = sub.comp_leg_id;
