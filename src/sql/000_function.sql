@@ -31,3 +31,26 @@ CREATE FUNCTION powertracks.FindOrthPosOnLine(@l1x float, @l1y float, @l2x float
     RETURN 1 - @rotated_py; 
     
   END;
+
+CREATE FUNCTION powertracks.GetSmallest
+(
+    -- Add the parameters for the function here
+    @val1 int,  @val2 int,  @val3 int
+)
+RETURNS int
+AS
+BEGIN
+Declare @result int
+set @result = case when @val1 < @val2 then
+               case when @val1 < @val3 then 
+                @val1
+               else
+                @val3
+               end
+        when @val2 < @val3 then 
+                @val2
+        else
+                 @val3
+    end
+  return @result  
+END 
