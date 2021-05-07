@@ -8,7 +8,8 @@ class AuxUploader:
 
     def start(self) : 
         #self.__create_rank_filter_table()
-        self.__create_degree_selection()
+        #self.__create_degree_selection()
+        self.__create_degree()
 
     def __create_rank_filter_table(self): 
         list_to_upload = [ (x,) for x in list(range(1,100)) ]
@@ -27,3 +28,12 @@ class AuxUploader:
         query = "INSERT INTO powertracks.degree_selection VALUES (?,?)"
         self.cursor.executemany(query, list_to_upload)
         self.cursor.commit()
+
+    def __create_degree(self):
+
+        list_to_upload = [ (i,) for i in range(360) ]
+        query = "INSERT INTO powertracks.degrees VALUES (?)"
+        self.cursor.executemany(query, list_to_upload)
+        self.cursor.commit()
+
+        

@@ -259,6 +259,11 @@ CREATE TABLE powertracks.degree_selection
     angle_degrees_norm int,
 );
 
+CREATE TABLE powertracks.degrees
+(
+    deg int primary key
+);
+
 
 
 -- SAILING STYLE (niet nodig?)

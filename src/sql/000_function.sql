@@ -54,3 +54,29 @@ set @result = case when @val1 < @val2 then
     end
   return @result  
 END 
+
+
+CREATE FUNCTION powertracks.FindAngle(
+    @deg1 int,  @deg2 int
+)
+RETURNS int
+AS
+BEGIN
+    declare @angle1 int
+    declare @angle2 int
+    declare @angle3 int
+    declare @result int
+
+    set @angle1 = abs(@deg1 - @deg2) 
+    set @angle2 = abs(@deg1 + 360 - @deg2) 
+    set @angle3 = abs(@deg1 - 360 - @deg2) 
+
+    set @result = case when @angle1 < @angle2 then 
+                            case when @angle1 < @angle3 then @angle1 else @angle3 end 
+                       else 
+                            case when @angle2 < @angle3 then @angle2 else @angle3 end 
+                        end 
+
+    return @result  
+END 
+GO
