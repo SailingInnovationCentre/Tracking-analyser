@@ -258,15 +258,17 @@ set startline_angle = sub.startline_angle
 from powertracks.races r 
 inner join (
     select race_id, 
-           round(180 / PI() * iif (abs(startline_pin_lat - startline_rc_lat) = 0.0, 0.5 * PI(), 
-            atan( (startline_pin_lng - startline_rc_lng) / 
-                  (1.125 * (startline_pin_lat - startline_rc_lat)))), 0) startline_angle
+           round(180 / PI() * 
+                 iif (abs(startline_pin_lat - startline_rc_lat) = 0.0, 
+                      0.5 * PI(), 
+                      atn2( (startline_pin_lng - startline_rc_lng),
+                             (1.125 * (startline_pin_lat - startline_rc_lat)))), 0) startline_angle
     from powertracks.races r2
 ) sub on r.race_id = sub.race_id;
 
 -- Step 9: Compute difference between actual wind direction at start and expected wind direction based on startline. 
 update powertracks.races 
-set startline_startwind_angle_diff = (startline_angle + 270) % 180 - (startwind_angle % 180);
+set startline_startwind_angle_diff = ((startwind_angle-startline_angle+90+180) % 360) - 180;
 
 -- Data quality 
 select startline_startwind_angle_diff, count(*) 

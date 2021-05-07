@@ -42,7 +42,11 @@ CREATE TABLE powertracks.races
     startline_angle int, 
     startwind_angle int,
     startline_startwind_angle_diff int,
-    visualize bit
+    visualize bit,
+    dominant_bearing_1 int, 
+    dominant_bearing_2 int,
+    wind_dir_based_on_bearing int,
+    startline_startwind_angle_diff_bearing int
 );
 
 
@@ -105,11 +109,6 @@ CREATE TABLE powertracks.legs
     up_or_downwind_leg bit,
     leg_nr_from_finish int,
     distance decimal(9,2),
-    correlation_tacks decimal(9,4),
-    correlation_side decimal(9,4),
-    correlation_avg_sog decimal(9,4),
-    correlation_traveled_distance decimal(9,4),
-    correlation_jibes decimal(9,4),
     pos_startline_abs_x decimal(9,3),
     pos_startline_abs_y decimal(9,3),
     pos_startline_rel decimal(9,3),
@@ -117,7 +116,6 @@ CREATE TABLE powertracks.legs
     cor_side_pos_startline_rel decimal(9,3),
     avg_spd decimal(9,3),
     avg_distance_traveled_m decimal (9,2),
-    
 );
 
 

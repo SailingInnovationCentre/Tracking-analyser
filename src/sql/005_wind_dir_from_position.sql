@@ -133,4 +133,17 @@ inner join (
     where rnk = 1
 ) sub on r.race_id = sub.race_id; 
 
+update powertracks.races 
+set wind_dir_based_on_bearing = 
+       (180 + iif(abs(dominant_bearing_1-dominant_bearing_2) > 180, 
+                  (360 + dominant_bearing_1 + dominant_bearing_2) / 2,
+                  (dominant_bearing_1 + dominant_bearing_2) / 2)) % 360;
 
+select dominant_bearing_1, dominant_bearing_2,
+       (180 + iif(abs(dominant_bearing_1-dominant_bearing_2) > 180, 
+                  (360 + dominant_bearing_1 + dominant_bearing_2) / 2,
+                  (dominant_bearing_1 + dominant_bearing_2) / 2)) % 360 diff, startwind_angle
+from powertracks.races
+
+update powertracks.races 
+set startline_startwind_angle_diff_bearing = ((wind_dir_based_on_bearing-startline_angle+90+180) % 360) - 180;
