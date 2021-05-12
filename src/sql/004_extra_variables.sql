@@ -97,7 +97,9 @@ update cl
 set rel_rank = sub.rel_rank, 
     avg_side_rel_rank = sub.avg_side_rel_rank, 
     average_sog_rel_rank = sub.average_sog_rel_rank, 
-    distance_traveled_rel_rank = sub.distance_traveled_rel_rank
+    distance_traveled_rel_rank = sub.distance_traveled_rel_rank,
+    average_sog_ratio_to_mean = sub.average_sog_ratio_to_mean,
+    average_distance_ratio_to_mean = sub.average_distance_ratio_to_mean
 from powertracks.comp_leg cl
 inner join 
     (select comp_leg_id,  
@@ -108,7 +110,9 @@ inner join
      100 * (rank() over (partition by leg_id order by average_sog_kts) - 1.0) /
            (count(*) over (partition by leg_id) - 1.0) average_sog_rel_rank,
      100 * (rank() over (partition by leg_id order by distance_traveled_m) - 1.0) /
-           (count(*) over (partition by leg_id) - 1.0) distance_traveled_rel_rank
+           (count(*) over (partition by leg_id) - 1.0) distance_traveled_rel_rank,
+     iif(distance_traveled_m = 0, 0.0, 100 * distance_traveled_m / (avg(distance_traveled_m) over (partition by leg_id))) average_distance_ratio_to_mean, 
+     iif(average_sog_kts = 0,     0.0, 100 * average_sog_kts     / (avg(average_sog_kts)     over (partition by leg_id))) average_sog_ratio_to_mean
      from powertracks.comp_leg) sub on cl.comp_leg_id = sub.comp_leg_id; 
 
 -- Data quality
