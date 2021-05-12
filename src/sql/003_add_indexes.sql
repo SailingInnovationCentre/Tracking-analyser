@@ -30,6 +30,12 @@ ON powertracks.comp_leg(leg_id, comp_leg_id);
 CREATE NONCLUSTERED INDEX comp_leg_nci_comp_idx
 ON powertracks.comp_leg(comp_id);
 
+CREATE NONCLUSTERED INDEX comp_leg_nci_rank_idx
+ON powertracks.comp_leg(rank);
+
+CREATE NONCLUSTERED INDEX comp_leg_nci_race_comp_idx
+ON powertracks.comp_leg(race_comp_id);
+
 CREATE NONCLUSTERED INDEX positions_ci_idx
 ON powertracks.positions(comp_leg_id, timepoint_ms);
 
