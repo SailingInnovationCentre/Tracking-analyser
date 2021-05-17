@@ -266,6 +266,10 @@ inner join
     group by r1.race_id
 ) sub on r.race_id = sub.race_id
 
+-- Convert bearing to wind direction. 
+update powertracks.races 
+set startwind_angle = (startwind_angle + 180) % 360;
+
 -- Data quality
 select count(*)
 from powertracks.races
@@ -289,7 +293,7 @@ inner join (
 
 -- Step 9: Compute difference between actual wind direction at start and expected wind direction based on startline. 
 update powertracks.races 
-set startline_startwind_angle_diff = ((startwind_angle-startline_angle+90+180) % 360) - 180;
+set startline_startwind_angle_diff = (360 + 90 + startwind_angle - startline_angle) % 360 - 180;
 
 -- Data quality 
 select startline_startwind_angle_diff, count(*) 
