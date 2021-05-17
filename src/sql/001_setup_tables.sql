@@ -26,6 +26,7 @@ CREATE TABLE powertracks.races
     max_wind_speed_kts decimal(10,2), 
     min_wind_speed_kts decimal(10,2), 
     avg_wind_dir_deg decimal(10,2), 
+    avg_wind_dir_deg_int int, 
     first_leg_bearing_deg decimal(10,2),
     first_leg_bearing_deg_int int,
     course_area_id int,

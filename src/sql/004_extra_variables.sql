@@ -1,7 +1,7 @@
 -- Step 0: Easy updates in races table. 
 
 update powertracks.races 
-set first_leg_bearing_deg_int = round(first_leg_bearing_deg, 0);
+set first_leg_bearing_deg_int = round(first_leg_bearing_deg, 0) % 360, avg_wind_dir_deg_int = round(avg_wind_dir_deg, 0) % 360;
 
 update powertracks.races 
 set start_of_race_dt = DATEADD(HOUR, 9, DATEADD(MILLISECOND, start_of_race_ms  % 1000, DATEADD(SECOND, start_of_race_ms / 1000, '19700101')));
@@ -10,13 +10,16 @@ update powertracks.races set visualize = 1;
 
 insert into powertracks.races(race_id, visualize) values ('dummy', 0); 
 
--- Step 1: Find for each leg its start and end point, based on the positions of the boats, when their leg starts/ends. 
+-- Some races do not link to a regatta, so we need to add these regattas manually. 
+select race_id, race_name, r.regatta_id, rg.regatta_id
+from powertracks.regattas rg
+right outer join powertracks.races r on r.regatta_id = rg.regatta_id
+where rg.regatta_id is null;
 
-alter table powertracks.legs add
-start_lat decimal(9,6),
-start_lng decimal(9,6), 
-end_lat decimal(9,6),
-end_lng decimal(9,6);
+insert into powertracks.regattas(regatta_id, boatclass) values ('Tokyo 2019 - Nacra 17', 'Nacra 17 Foiling');
+insert into powertracks.regattas(regatta_id, boatclass) values ('HWCS 2020 Round 1 - Nacra 17', 'Nacra 17 Foiling');
+
+-- Step 1: Find for each leg its start and end point, based on the positions of the boats, when their leg starts/ends. 
 
 update l
 set l.start_lat = avg_start_lat, l.start_lng = avg_start_lng
@@ -152,23 +155,33 @@ where sub.dist_rank = 1
 -- Step 5: Calculate position of startline. 
 -- Pin is left side of startline, RC is right side of startline. 
 update r
-set r.startline_pin_lat = sub.start_lat, r.startline_pin_lng = sub.start_lng
+set r.startline_pin_lat = sub.lat_deg, r.startline_pin_lng = sub.lng_deg
 from powertracks.races r 
 inner join (
-    select r.race_id, avg(mp.lat_deg) start_lat, avg(mp.lng_deg) start_lng
-    from powertracks.races r
-    inner join powertracks.marks_positions mp on r.startline_pin_id = mp.mark_id and abs(r.start_of_race_ms - mp.timepoint_ms) < 660000  -- 11 minutes: 5 before and 5 after start of race
-    group by r.regatta_id, r.race_id, r.race_name, r.start_of_race_ms
+    select race_id, lat_deg, lng_deg
+    from ( 
+        select r.race_id, 
+               mp.lat_deg, mp.lng_deg, 
+               ROW_NUMBER() over (partition by r.race_id order by abs(r.start_of_race_ms - mp.timepoint_ms)) rnk
+        from powertracks.races r
+        inner join powertracks.marks_positions mp on r.startline_pin_id = mp.mark_id
+    ) inner_sub
+    where rnk = 1
 ) sub on r.race_id = sub.race_id;
 
 update r
-set r.startline_rc_lat = sub.start_lat, r.startline_rc_lng = sub.start_lng
+set r.startline_rc_lat = sub.lat_deg, r.startline_rc_lng = sub.lng_deg
 from powertracks.races r 
 inner join (
-    select r.race_id, avg(mp.lat_deg) start_lat, avg(mp.lng_deg) start_lng
-    from powertracks.races r
-    inner join powertracks.marks_positions mp on r.startline_rc_id = mp.mark_id and abs(r.start_of_race_ms - mp.timepoint_ms) < 660000  -- 11 minutes: 5 before and 5 after start of race
-    group by r.regatta_id, r.race_id, r.race_name, r.start_of_race_ms
+    select race_id, lat_deg, lng_deg
+    from ( 
+        select r.race_id, 
+               mp.lat_deg, mp.lng_deg, 
+               ROW_NUMBER() over (partition by r.race_id order by abs(r.start_of_race_ms - mp.timepoint_ms)) rnk
+        from powertracks.races r
+        inner join powertracks.marks_positions mp on r.startline_rc_id = mp.mark_id
+    ) inner_sub
+    where rnk = 1
 ) sub on r.race_id = sub.race_id;
 
 -- Data quality
@@ -181,17 +194,21 @@ where r.startline_pin_lat is null or r.startline_rc_lat is null;
 
 -- Find start position for each first leg, for each competitor. 
 update rc 
-set rc.start_pos_lat = sub.lat , rc.start_pos_lng = sub.lng
+set rc.start_pos_lat = sub.lat_deg, rc.start_pos_lng = sub.lng_deg
 from powertracks.race_comp rc 
 inner join (
-    select r.race_id, cl.comp_id, avg(p.lat_deg) as lat, avg(lng_deg) as lng
-    from powertracks.positions p 
-    inner join powertracks.comp_leg cl on p.comp_leg_id = cl.comp_leg_id
-    inner join powertracks.legs l on cl.leg_id = l.leg_id
-    inner join powertracks.races r on l.race_id = r.race_id
-    where abs(p.timepoint_ms - r.start_of_race_ms) < 12000 and l.leg_nr = 0
-    group by r.race_id, cl.comp_id
-) sub on rc.race_id = sub.race_id and rc.comp_id = sub.comp_id
+    select * 
+    from (
+        select l.race_id, cl.comp_id, lat_deg, lng_deg, 
+            ROW_NUMBER() over (partition by cl.comp_leg_id order by abs(r.start_of_race_ms - p.timepoint_ms)) rnk 
+        from powertracks.positions p 
+        inner join powertracks.comp_leg cl on p.comp_leg_id = cl.comp_leg_id 
+        inner join powertracks.legs l on cl.leg_id = l.leg_id
+        inner join powertracks.races r on l.race_id = r.race_id
+        where l.leg_nr = 0 and abs(r.start_of_race_ms - p.timepoint_ms) < 120000
+    ) inner_sub
+    where rnk = 1
+) sub on rc.race_id = sub.race_id and rc.comp_id = sub.comp_id;
 
 -- Find relative start position on the start line. 0 -> left side; 100 -> right side. 
 update rc
