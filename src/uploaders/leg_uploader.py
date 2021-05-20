@@ -1,4 +1,3 @@
-import sys
 import json
 import uuid
 
@@ -37,13 +36,12 @@ class LegUploader:
             # This is a newly generated ID, unique for each leg. 
             leg_id = str(uuid.uuid4())
             self.dict_leg_id[(race_id, leg_nr)] = leg_id
-
-            up_down = 1 if leg_record['upOrDownwindLeg'] else 0          
+          
             leg_list_to_upload.append((leg_id, race_id, leg_nr, \
                 leg_record['fromWaypointId'], leg_record['from'],\
-                leg_record['toWaypointId'], leg_record['to'], up_down))
+                leg_record['toWaypointId'], leg_record['to']))
 
-            # Add leg_comps
+            # Add comp_legs
             competitor_lst = leg_record['competitors']
             for comp_record in competitor_lst :
                 comp_id = comp_record['id']
@@ -61,9 +59,9 @@ class LegUploader:
             fromWaypointIdSet.add(fromWaypointId)
             leg_nr += 1
 
-        query = "INSERT INTO powertracks.legs(leg_id, race_id, leg_nr, from_waypoint_id, \
-            from_waypoint_name, to_waypoint_id, to_waypoint_name, up_or_downwind_leg) \
-            VALUES (?,?,?,?,?,?,?,?)"
+        query = "INSERT INTO powertracks.legs(leg_id, race_id, leg_nr, \
+            from_waypoint_id, from_waypoint_name, to_waypoint_id, to_waypoint_name) \
+            VALUES (?,?,?,?,?,?,?)"
         cursor.executemany(query, leg_list_to_upload)
         cursor.commit()
 

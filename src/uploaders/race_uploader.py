@@ -65,14 +65,13 @@ class RaceUploader:
                     short_name = "R11"
 
             race_id = dict_short_name_to_id[short_name]
-            fleet = record['fleet']
             lo = record['trueLowerboundWindInKnots']
             hi = record['trueUppwerboundWindInKnots']
             avg = record['trueWindDirectionInDegrees']
 
-            list_to_upload.append((fleet, lo, hi, avg, race_id))
+            list_to_upload.append((lo, hi, avg, race_id))
 
-        query = "UPDATE powertracks.races set fleet = ?, \
+        query = "UPDATE powertracks.races set \
             min_wind_speed_kts = ?, max_wind_speed_kts = ?, avg_wind_dir_deg = ? \
             WHERE race_id = ?"
         cursor.executemany(query, list_to_upload)

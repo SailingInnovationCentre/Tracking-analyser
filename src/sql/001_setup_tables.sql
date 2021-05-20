@@ -23,12 +23,12 @@ CREATE TABLE powertracks.races
     regatta_id varchar(100),              -- just the name
     race_name varchar(50),                -- e.g. R4 (49ER)
     race_short_name varchar(50),          -- e.g. R4
-    fleet varchar(20),
     max_wind_speed_kts decimal(10,2), 
     min_wind_speed_kts decimal(10,2), 
     avg_wind_dir_deg decimal(10,2), 
+    avg_wind_dir_deg_int int, 
     first_leg_bearing_deg decimal(10,2),
-    first_leg_bearing_deg_int decimal(10,2),
+    first_leg_bearing_deg_int int,
     course_area_id int,
     start_of_race_ms bigint,
     start_of_race_dt datetime, 
@@ -80,6 +80,7 @@ DROP TABLE IF EXISTS powertracks.race_comp;
 
 CREATE TABLE powertracks.race_comp
 (
+    race_comp_id int,      -- This is a primary key that is added later. 
     race_id varchar(40),
     comp_id varchar(40),
     rank int,
@@ -106,16 +107,10 @@ CREATE TABLE powertracks.legs
     from_waypoint_name varchar(20), 
     to_waypoint_id varchar(40),
     to_waypoint_name varchar(20),
-    up_or_downwind_leg bit,
-    leg_nr_from_finish int,
-    distance decimal(9,2),
-    pos_startline_abs_x decimal(9,3),
-    pos_startline_abs_y decimal(9,3),
-    pos_startline_rel decimal(9,3),
-    cor_side_pos_startline_abs decimal(9,3),
-    cor_side_pos_startline_rel decimal(9,3),
-    avg_spd decimal(9,3),
-    avg_distance_traveled_m decimal (9,2),
+    start_lat decimal(9,6),
+    start_lng decimal(9,6), 
+    end_lat decimal(9,6), 
+    end_lng decimal(9,6)
 );
 
 
