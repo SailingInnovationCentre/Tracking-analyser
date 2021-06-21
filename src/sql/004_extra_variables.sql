@@ -21,6 +21,26 @@ insert into powertracks.regattas(regatta_id, boatclass) values ('HWCS 2020 Round
 
 -- Step 1: Find for each leg its start and end point, based on the positions of the boats, when their leg starts/ends. 
 
+-- Updated variant! Run this query afer calculating the start line!! 
+update l 
+set l.start_lat = sub.start_lat, 
+    l.start_lng = sub.start_lng 
+from powertracks.legs l 
+inner join (
+    select l.leg_id, 
+           (r.startline_pin_lat + r.startline_rc_lat) / 2 start_lat, 
+           (r.startline_pin_lng + r.startline_rc_lng) / 2 start_lng
+    from   powertracks.legs l
+    inner join powertracks.races r on l.race_id = r.race_id 
+    where l.leg_nr = 0 
+) sub on l.leg_id = sub.leg_id;
+
+
+select start_lat, start_lng, r.startline_pin_lat, r.startline_pin_lng, r.startline_rc_lat, r.startline_rc_lng
+from powertracks.legs l
+inner join powertracks.races r on l.race_id = r.race_id 
+where leg_nr = 0; 
+
 update l
 set l.start_lat = avg_start_lat, l.start_lng = avg_start_lng
 from powertracks.legs l
@@ -58,28 +78,29 @@ where abs(l2.start_lat - l1.end_lat) > 0.0005 or abs(l2.start_lng - l1.end_lng) 
 -- Later in this file, we will be calculating distances. We cannot assume that a certain difference in latitude 
 -- equates the same difference in longitude. Therefore, we need to scale this. Taking the average position of 
 -- (35.273, 139.512), moving in latitude by 0.01 degrees yields a distance of 1.112, whereas moving 0.01 degrees 
--- in longitude yields a distance of 0.908. Therefore, all latitude distances need to be multiplied by a 
--- factor of 1.112 / 0.908 = 1.225.
+-- in longitude yields a distance of 0.908.
 -- Source: https://latlongdata.com/distance-calculator/
 
 -- Compute a few statistics on comp_leg level, regarding rank, side, average speed, and traveled distance. 
 -- Step 1: Compute side. This query uses the positions table. 
 -- Basic formula is: https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line , normalized by length of leg. 
 -- 100% = two angles of 45 degrees, forming a triangle with the line between the waypoints. 
+
+
 update cl
 set avg_side = sub.avg_side, most_left_side = sub.most_left, most_right_side = sub.most_right
 from powertracks.comp_leg cl 
 inner join 
     (select p.comp_leg_id, 
         100 * avg(
-        ( 1.225 * (l.end_lat - l.start_lat) * (l.start_lng - p.lng_deg) - 1.225 * (l.start_lat - p.lat_deg) * (l.end_lng - l.start_lng) ) /
-        ( (power(1.225 * (l.end_lat - l.start_lat), 2) + power(l.end_lng - l.start_lng, 2)) / 2.0E0 )) avg_side,
+        ( 1.112 * (l.end_lat - l.start_lat) * 0.908 * (l.start_lng - p.lng_deg) - 1.112 * (l.start_lat - p.lat_deg) * 0.908 * (l.end_lng - l.start_lng) ) /
+        ( (power(1.112 * (l.end_lat - l.start_lat), 2) + power(0.908 * (l.end_lng - l.start_lng), 2)) / 4.0E0 )) avg_side,
         100 * min(
-        ( 1.225 * (l.end_lat - l.start_lat) * (l.start_lng - p.lng_deg) - 1.225 * (l.start_lat - p.lat_deg) * (l.end_lng - l.start_lng) ) /
-        ( (power(1.225 * (l.end_lat - l.start_lat), 2) + power(l.end_lng - l.start_lng, 2)) / 2.0E0 )) most_left,
+        ( 1.112 * (l.end_lat - l.start_lat) * 0.908 * (l.start_lng - p.lng_deg) - 1.112 * (l.start_lat - p.lat_deg) * 0.908 * (l.end_lng - l.start_lng) ) /
+        ( (power(1.112 * (l.end_lat - l.start_lat), 2) + power(0.908 * (l.end_lng - l.start_lng), 2)) / 4.0E0 )) most_left,
         100 * max(
-        ( 1.225 * (l.end_lat - l.start_lat) * (l.start_lng - p.lng_deg) - 1.225 * (l.start_lat - p.lat_deg) * (l.end_lng - l.start_lng) ) /
-        ( (power(1.225 * (l.end_lat - l.start_lat), 2) + power(l.end_lng - l.start_lng, 2)) / 2.0E0 )) most_right
+        ( 1.112 * (l.end_lat - l.start_lat) * 0.908 * (l.start_lng - p.lng_deg) - 1.112 * (l.start_lat - p.lat_deg) * 0.908 * (l.end_lng - l.start_lng) ) /
+        ( (power(1.112 * (l.end_lat - l.start_lat), 2) + power(0.908 * (l.end_lng - l.start_lng), 2)) / 4.0E0 )) most_right
     from powertracks.positions p
     inner join powertracks.comp_leg cl on p.comp_leg_id = cl.comp_leg_id
     inner join powertracks.legs l on cl.leg_id = l.leg_id
@@ -87,6 +108,8 @@ inner join
           sqrt(power(l.end_lat - l.start_lat, 2) + power(l.end_lng - l.start_lng, 2)) > 0.0001
     group by p.comp_leg_id) sub
 on cl.comp_leg_id = sub.comp_leg_id
+
+
 
 -- Data quality. 
 select l.leg_nr, case when avg_side is null then 0 else 1 end is_null, count(*)
