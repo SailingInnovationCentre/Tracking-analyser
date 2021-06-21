@@ -12,8 +12,19 @@ from uploaders.leg_uploader import LegUploader
 from uploaders.live_uploader import LiveUploader
 from uploaders.marks_uploader import MarksUploader
 from uploaders.aux_uploader import AuxUploader
+from downloaders.sap_downloader import SapDownloader
 
-def main():
+def main(): 
+    main_download()
+    #main_upload()
+
+def main_download():
+    base_url = 'https://www.sapsailing.com/sailingserver/api/v1'
+    target_path = 'c:/data/powertracks/auto_download'
+    downloader = SapDownloader(base_url, target_path)
+    downloader.start()
+
+def main_upload():
 
     root_path = extract_parameters()
 
