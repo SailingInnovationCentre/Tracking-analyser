@@ -1,5 +1,4 @@
 import pyodbc
-import json
 import sys
 import os
 import math
@@ -81,7 +80,7 @@ def upload_regatta(regatta_dir, conn, cursor) :
         short_name = uploader.make_short(race_dir_basename)
         race_id = dict_name_to_id[short_name]
 
-        flb_json_path = os.path.join(race_dir, 'firstlegbearing.json')
+        flb_json_path = os.path.join(race_dir, "firstlegbearing.json")
         uploader.upload_first_leg_bearing(flb_json_path, race_id, conn, cursor)
         times_json_path = os.path.join(race_dir, 'times.json')
         uploader.upload_times(times_json_path, race_id, conn, cursor)

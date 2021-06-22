@@ -21,7 +21,7 @@ insert into powertracks.regattas(regatta_id, boatclass) values ('HWCS 2020 Round
 
 -- Step 1: Find for each leg its start and end point, based on the positions of the boats, when their leg starts/ends. 
 
--- Updated variant! Run this query afer calculating the start line!! 
+-- Updated variant! Run this query after calculating the start line!!
 update l 
 set l.start_lat = sub.start_lat, 
     l.start_lng = sub.start_lng 

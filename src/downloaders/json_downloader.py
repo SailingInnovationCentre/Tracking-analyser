@@ -1,37 +1,45 @@
+import os
 import os.path
 import json
+from json import JSONDecodeError
+
 import requests
-from requests.models import InvalidURL
 
-class JsonDownloader: 
 
-    def download(self, source_url, destination_json_path, description) : 
-        
-        # Cache! 
-        print(destination_json_path)
-        if os.path.exists(destination_json_path) : 
-            with open(destination_json_path) as f : 
-                j = json.load(f)
-                print (f"Cached: '{description}'")
-                return j
+class JsonDownloader:
 
-        print (f"Downloading '{description}'...")
+    def download(self, source_url: str, destination_json_path: str, description: str) -> object:
+
+        # Cache!
+        if os.path.exists(destination_json_path):
+            if os.path.getsize(destination_json_path) == 0:
+                print(f"Cached (empty): {description}")
+                return None
+            else:
+                with open(destination_json_path) as f:
+                    j = json.load(f)
+                    print(f"Cached: {description}")
+                    return j
+
         r = requests.get(source_url)
-        if r.status_code != 200 : 
-            print("Download not successful.")
-            raise InvalidURL()
+        if r.status_code != 200:
+            print(f"Download not successful: {description}")
+            f = open(destination_json_path, 'w')
+            f.close()
+            return None
 
-        try : 
+        try:
             j = json.loads(r.text)
-        except JSONDecodeError :
+        except JSONDecodeError:
             print("Downloaded text is not a valid JSON.")
             print(r.text)
             raise
 
-        with open(destination_json_path, 'w') as f :
+        with open(destination_json_path, 'w') as f:
             json.dump(j, f, indent=4)
 
-        print (f"Download of '{description}'' done. Size: {int(len(r.text) / 1000)} kB. Time: {r.elapsed.total_seconds():.2f} s.")
+        print(
+            f"Download successful: {description} . Size: {int(len(r.text) / 1000)} kB. Time: " +
+            f"{r.elapsed.total_seconds():.2f} s.")
 
         return j
-
