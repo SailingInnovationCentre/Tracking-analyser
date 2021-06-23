@@ -1,8 +1,15 @@
 from downloaders.sap_downloader import SapDownloader
+from uploaders.sap_uploader import SapUploader
 
 
 def main():
-    main_download()
+    # main_download()
+    main_upload()
+
+
+def main_upload():
+    uploader = SapUploader('c:/data/powertracks-v3')
+    uploader.start()
 
 
 def main_download():

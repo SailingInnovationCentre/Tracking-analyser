@@ -22,7 +22,7 @@ CREATE TABLE powertracks3.races
     race_id varchar(40) PRIMARY KEY,      -- GUID
     regatta_id varchar(100),              -- just the name
     race_name varchar(50),                -- e.g. R4 (49ER)
-    race_short_name varchar(50),          -- e.g. R4
+    tracked_race_name varchar(50),        -- e.g. R4
     start_of_race_ms bigint,
     start_of_race_dt datetime, 
     end_of_race_ms bigint,
