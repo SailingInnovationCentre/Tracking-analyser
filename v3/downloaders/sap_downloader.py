@@ -55,7 +55,7 @@ class SapDownloader:
         for n in sorted(selected_regatta_names) :
             print(n)
 
-        for regatta_name in [n for n in selected_regatta_names if '2012' in n or '2016' in n ]:
+        for regatta_name in selected_regatta_names :
             regatta_folder = normalise_path_name(os.path.join(self.target_path, regatta_name))
             safe_mkdir(regatta_folder)
 
