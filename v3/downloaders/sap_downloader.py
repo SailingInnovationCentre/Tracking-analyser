@@ -59,10 +59,14 @@ class SapDownloader:
             regatta_folder = normalise_path_name(os.path.join(self.target_path, regatta_name))
             safe_mkdir(regatta_folder)
 
-            for suffix in ('regattas', 'entries', 'windsummary'):
-                regatta_url = f"{self.base_url}/regattas/{regatta_name}"
-                regatta_path = normalise_path_name(f"{self.target_path}/{regatta_name}/{suffix}.json")
-                json = self.json_downloader.download(regatta_url, regatta_path, f"{regatta_name}/{suffix}.json")
+            for suffix in ('entries', 'windsummary'):
+                url = f"{self.base_url}/regattas/{regatta_name}/{suffix}"
+                path = normalise_path_name(f"{self.target_path}/{regatta_name}/{suffix}.json")
+                self.json_downloader.download(url, path, f"{regatta_name}/{suffix}.json")
+
+            url = f"{self.base_url}/regattas/{regatta_name}"
+            path = normalise_path_name(f"{self.target_path}/{regatta_name}/regatta_details.json")
+            json = self.json_downloader.download(url, path, f"{regatta_name}/regatta_details.json")
 
             tracked_race_names = []
             for s in json['series']:
@@ -77,8 +81,6 @@ class SapDownloader:
                 fs_race_name = race_name.strip()   # Some races have trailing spaces...
                 race_folder = normalise_path_name(f"{self.target_path}/{regatta_name}/{fs_race_name}")
                 safe_mkdir(race_folder)
-
-                # Strip race_name somehow. Trailing spaces are ignored! 
 
                 for suffix in ('course', 'entries', 'firstlegbearing', 'markpassings', 'targettime', 'times', 'maneuvers'):
                     url = f"{self.base_url}/regattas/{regatta_name}/races/{race_name}/{suffix}"

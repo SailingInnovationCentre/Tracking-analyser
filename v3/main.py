@@ -3,8 +3,8 @@ from uploaders.sap_uploader import SapUploader
 
 
 def main():
-    # main_download()
-    main_upload()
+    main_download()
+    #main_upload()
 
 
 def main_upload():

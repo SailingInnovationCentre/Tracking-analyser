@@ -24,7 +24,7 @@ class SapUploader:
             if 'WCS 2019 Enoshima - RSX' not in regatta_dir:
                 continue
 
-            path = os.path.join(regatta_dir, 'regattas.json')
+            path = os.path.join(regatta_dir, 'regatta_details.json')
             uploader = RaceUploader()
             uploader.upload_races(path, self.cursor)
 
