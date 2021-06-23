@@ -1,5 +1,4 @@
 import os.path
-import sys
 
 from downloaders.json_downloader import JsonDownloader
 
@@ -56,7 +55,7 @@ class SapDownloader:
         for n in sorted(selected_regatta_names) :
             print(n)
 
-        for regatta_name in [n for n in selected_regatta_names if '2018' in n]:
+        for regatta_name in [n for n in selected_regatta_names if '2012' in n or '2016' in n ]:
             regatta_folder = normalise_path_name(os.path.join(self.target_path, regatta_name))
             safe_mkdir(regatta_folder)
 
@@ -75,19 +74,20 @@ class SapDownloader:
                             tracked_race_names.append(race['trackedRaceName'])
 
             for race_name in tracked_race_names:
-                race_folder = normalise_path_name(f"{self.target_path}/{regatta_name}/{race_name}")
+                fs_race_name = race_name.strip()   # Some races have trailing spaces...
+                race_folder = normalise_path_name(f"{self.target_path}/{regatta_name}/{fs_race_name}")
                 safe_mkdir(race_folder)
 
                 # Strip race_name somehow. Trailing spaces are ignored! 
 
                 for suffix in ('course', 'entries', 'firstlegbearing', 'markpassings', 'targettime', 'times', 'maneuvers'):
                     url = f"{self.base_url}/regattas/{regatta_name}/races/{race_name}/{suffix}"
-                    path = normalise_path_name(f"{self.target_path}/{regatta_name}/{race_name}/{suffix}.json")
-                    self.json_downloader.download(url, path, f"{regatta_name}/{race_name}/{suffix}.json")
+                    path = normalise_path_name(f"{self.target_path}/{regatta_name}/{fs_race_name}/{suffix}.json")
+                    self.json_downloader.download(url, path, f"{regatta_name}/{fs_race_name}/{suffix}.json")
 
                 url = f"{self.base_url}/regattas/{regatta_name}/races/{race_name}/competitors/legs"
-                path = normalise_path_name(f"{self.target_path}/{regatta_name}/{race_name}/legs.json")
-                self.json_downloader.download(url, path, f"{regatta_name}/{race_name}/legs.json")
+                path = normalise_path_name(f"{self.target_path}/{regatta_name}/{fs_race_name}/legs.json")
+                self.json_downloader.download(url, path, f"{regatta_name}/{fs_race_name}/legs.json")
 
     def download_regattas(self):
         regattas_url = f"{self.base_url}/regattas"
